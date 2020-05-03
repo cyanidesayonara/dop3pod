@@ -1,0 +1,11 @@
+# this is a comment
+.idea/
+env/
+
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
