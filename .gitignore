@@ -1,6 +1,7 @@
 # this is a comment
 .idea/
 env/
+venv/
 
 # Django #
 *.log
