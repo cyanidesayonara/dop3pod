@@ -1,1 +1,1 @@
-web: gunicorn dopepod.wsgi
+web: gunicorn dop3pod.wsgi
