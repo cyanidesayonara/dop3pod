@@ -2,7 +2,7 @@
 .idea/
 env/
 venv/
-static/
+staticfiles/
 
 # Django #
 *.log
