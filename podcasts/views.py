@@ -1,13 +1,19 @@
 from django.http import JsonResponse
 from fake_useragent import UserAgent
 from django.db import transaction
+from string import ascii_lowercase
 import requests
 import logging
+import random
 
 from .models import Podcast
 
 logger = logging.getLogger(__name__)
 ua = UserAgent()
+
+headers = {
+    'User-Agent': str(ua.random)
+}
 
 
 def start(request):
@@ -18,28 +24,27 @@ def start(request):
 
 
 def scrape_podcasts():
-    try:
-        print(Podcast.objects.all())
-        return
-    except Exception as e:
-        logger.error(e)
-
-    headers = {
-        'User-Agent': str(ua.random)
-    }
-    logger.info('scraping')
     url = 'https://itunes.apple.com/search?media=podcast&entity=podcast&attribute=titleTerm&limit=200&term='
+    url = url + random.choice(ascii_lowercase) + random.choice(ascii_lowercase)
     try:
+        logger.error('scraping %s', url)
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         data = response.json()
         results = data['results']
-        for result in results:
+        update_or_save_results(results)
+    except Exception as e:
+        logger.error("Exception: %s", e)
+
+
+def update_or_save_results(results):
+    for result in results:
+        try:
             title = result['collectionName']
             feed_url = result['feedUrl']
             artwork_url = result['artworkUrl600']
-
-            # TODO try to get episodes before creating podcast
+            response = requests.get(feed_url, headers=headers, timeout=10)
+            response.raise_for_status()
             podcast, created = Podcast.objects.select_related(None).select_for_update().update_or_create(
                 feed_url=feed_url,
                 defaults={
@@ -53,6 +58,5 @@ def scrape_podcasts():
                     logger.info('created podcast %s %s', title, feed_url)
                 else:
                     logger.info('updated podcast %s %s', title, feed_url)
-
-    except (KeyError, IndexError) as e:
-        logger.error("Missing data: %s", e)
+        except KeyError as e:
+            logger.error("Missing data: %s", e)
