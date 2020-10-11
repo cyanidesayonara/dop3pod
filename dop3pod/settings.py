@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
-dotenv_file = os.path.join(BASE_DIR, "../.env")
+dotenv_file = os.path.join(BASE_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
@@ -79,9 +79,7 @@ WSGI_APPLICATION = 'dop3pod.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(conn_max_age=600)
-
+DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -122,4 +120,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
 django_heroku.settings(locals())
-del DATABASES['default']['OPTIONS']['sslmode']
+options = DATABASES['default'].get('OPTIONS', {})
+options.pop('sslmode', None)
