@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
-import django_heroku
 import dj_database_url
 import dotenv
 import logging.config
@@ -151,6 +150,5 @@ result_expires = 1000
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
-django_heroku.settings(locals())
 options = DATABASES['default'].get('OPTIONS', {})
 options.pop('sslmode', None)
