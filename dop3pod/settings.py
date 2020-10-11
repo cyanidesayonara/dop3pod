@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['159.89.101.150', 'dopepod.me', 'dopepod.app']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
 # Application definition
 
@@ -137,8 +137,8 @@ USE_TZ = True
 
 # Celery config
 
-broker_url = os.getenv('BROKER_URL')
-result_backend = os.getenv('REDIS_URL')
+broker_url = os.getenv('AMQP_URL')
+result_backend = os.getenv('AMQP_URL')
 accept_content = ['application/json']
 task_serializer = 'json'
 result_serializer = 'json'
