@@ -13,10 +13,6 @@ Django Rest Framework
 * Install requirements.txt  
   pip install -r requirements.txt
 
-## dopepod
-
-dopepod is a REST backend for a podcast service
-
 ## Server setup
 
 https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-20-04

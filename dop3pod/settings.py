@@ -39,6 +39,7 @@ ALLOWED_HOSTS = ['159.89.101.150', 'dopepod.me', 'dopepod.app']
 # Application definition
 
 INSTALLED_APPS = [
+    'podcasts.apps.PodcastsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

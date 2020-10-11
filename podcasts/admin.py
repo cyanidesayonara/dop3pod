@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from podcasts.models import Podcast
+
+
+@admin.register(Podcast)
+class PodcastAdmin(admin.ModelAdmin):
+    list_display = ('title', 'feed_url', 'artwork_url')
+    fields = ('title', 'feed_url', 'artwork_url')
