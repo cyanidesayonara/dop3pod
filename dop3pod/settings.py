@@ -14,6 +14,8 @@ import os
 import django_heroku
 import dj_database_url
 import dotenv
+import logging.config
+import django
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -99,13 +101,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('LOGGING_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Helsinki'
 
 USE_I18N = True
 
@@ -113,6 +136,15 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Celery config
+
+broker_url = os.getenv('BROKER_URL')
+result_backend = os.getenv('REDIS_URL')
+accept_content = ['application/json']
+task_serializer = 'json'
+result_serializer = 'json'
+timezone = 'Europe/Helsinki'
+result_expires = 1000
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
