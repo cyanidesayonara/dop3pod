@@ -1,13 +1,9 @@
-from django.http import JsonResponse
-import logging
 from .models import Podcast
-from .tasks import scrape_podcasts
+from .serializers import PodcastSerializer
+from rest_framework import viewsets, permissions
 
-logger = logging.getLogger(__name__)
 
-
-def index(request):
-    scrape_podcasts.delay()
-    podcasts = Podcast.objects.all()
-    data = list(podcasts.values())
-    return JsonResponse(data, safe=False)
+class PodcastViewSet(viewsets.ModelViewSet):
+    queryset = Podcast.objects.all()
+    serializer_class = PodcastSerializer
+    permission_classes = [permissions.AllowAny]

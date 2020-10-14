@@ -34,9 +34,18 @@ DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'podcasts.apps.PodcastsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
