@@ -145,12 +145,11 @@ USE_L10N = True
 USE_TZ = True
 
 # Celery config
-
-broker_url = os.getenv('AMQP_URL')
-result_backend = os.getenv('AMQP_URL')
-accept_content = ['application/json']
-task_serializer = 'json'
-result_serializer = 'json'
+CELERY_BROKER_URL = os.getenv('AMQP_URL')
+CELERY_RESULT_BACKEND = os.getenv('AMQP_URL')
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
 timezone = 'Europe/Helsinki'
 result_expires = 1000
 
