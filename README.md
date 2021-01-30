@@ -40,6 +40,7 @@ https://stackabuse.com/asynchronous-tasks-in-django-with-redis-and-celery/
 # Celery
 https://medium.com/swlh/python-developers-celery-is-a-must-learn-technology-heres-how-to-get-started-578f5d63fab3  
 https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html
+https://docs.celeryproject.org/en/stable/userguide/daemonizing.html#daemonizing
 
 # Let's Encrypt
 https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-20-04
