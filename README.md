@@ -1,15 +1,13 @@
 # dop3pod
 This will be the 3.0 version of my old pet project [dopepod](https://github.com/cyanidesayonara/dopepod).
 
-As before, dopepod will be a web app capable of searching and playing thousands of free podcasts.
-
-This time it will be made with something old, something new, something borrowed and something Vue. 
+dopepod will be a web/Android/iOS app capable of searching and playing thousands of free podcasts.
 
 # Ingredients
 * Python 3  
 * Django Rest Framework  
 * Celery
-* Vue
+* Flutter
 
 # Installation
 https://docs.djangoproject.com/en/3.1/intro/tutorial01/
@@ -25,11 +23,13 @@ https://docs.djangoproject.com/en/3.1/intro/tutorial01/
   ```pip install -r requirements.txt```  
 * Create a file for environment variables  
   ```touch .env```
-* Add the following lines to the .env file  
-  ```SECRET_KEY=asd123```  
-  ```ALLOWED_HOSTS='localhost'```  
-  ```DATABASE_URL=sqlite:///db.sqlite3```  
-  ```AMQP_URL='redis://localhost:6379'```
+* Add the following to the created .env file
+  ```
+  SECRET_KEY=asd123  
+  ALLOWED_HOSTS='localhost'  
+  DATABASE_URL=sqlite:///db.sqlite3  
+  AMQP_URL='redis://localhost:6379'
+  ```
 * Run migrations  
   ```python manage.py migrate```
 * Create super user  
@@ -56,3 +56,6 @@ https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-
 
 ## Django REST Framework
 https://www.django-rest-framework.org/tutorial/quickstart/
+
+## Flutter
+https://flutter.dev/docs/get-started/install
