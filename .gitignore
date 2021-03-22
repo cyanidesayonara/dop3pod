@@ -1,11 +1,8 @@
-# this is a comment
 .idea/
-env/
-venv/
 static/
-
 *.iml
-.env
+.*env
+*venv/
 
 # Django #
 *.log
