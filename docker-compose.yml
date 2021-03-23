@@ -3,14 +3,12 @@ services:
   dop3pod:
     container_name: dop3pod
     build: .
-    ports:
-      - "8000:8000"
     volumes:
       - ./dop3pod:/dop3pod
     command: >
       sh -c "wait-for postgres:5432 &&
              python manage.py migrate &&
-             gunicorn dop3pod.wsgi -b 0.0.0.0:8000"
+             gunicorn --workers=2 dop3pod.wsgi -b 0.0.0.0:8000"
     env_file:
       - ./.docker-env
     depends_on:
@@ -23,6 +21,14 @@ services:
     networks:
       - main
     restart: on-failure
+  nginx:
+    build: ./nginx
+    volumes:
+      - staticfiles:/dop3pod/static/
+    ports:
+      - 1337:80
+    depends_on:
+      - dop3pod
   postgres:
     image: postgres:13-alpine
     container_name: postgres
@@ -62,7 +68,10 @@ services:
     networks:
       - main
     restart: on-failure
+
 networks:
   main:
+
 volumes:
   pgdata:
+  staticfiles:
