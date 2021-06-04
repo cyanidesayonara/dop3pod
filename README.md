@@ -7,7 +7,8 @@ dopepod will be a web/Android/iOS app capable of searching and playing thousands
 * Python 3  
 * Django Rest Framework  
 * Celery
-* Flutter
+* Dart
+* Go
 
 # Startup (docker)
 * Install docker & docker-compose  
