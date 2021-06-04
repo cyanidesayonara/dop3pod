@@ -3,6 +3,9 @@ static/
 *.iml
 .*env
 *venv/
+.bin
+env
+vendor/
 
 # Django #
 *.log
