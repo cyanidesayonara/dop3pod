@@ -42,6 +42,8 @@ https://docs.djangoproject.com/en/3.1/intro/tutorial01/
   ```python manage.py migrate```
 * Create super user  
   ```python manage.py createsuperuser```
+* Collect static files
+  ```python manage.py collectstatic```
 * Run server  
   ```python manage.py runserver```
 

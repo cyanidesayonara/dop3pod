@@ -1,10 +1,8 @@
 .idea/
-static/
 *.iml
 .*env
-*venv/
+*env/
 .bin
-env
 vendor/
 
 # Django #
@@ -14,3 +12,5 @@ vendor/
 __pycache__
 db.sqlite3
 media
+
+staticfiles/
