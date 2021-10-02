@@ -7,45 +7,38 @@ dopepod will be a web/Android/iOS app capable of searching and playing thousands
 * Python 3  
 * Django Rest Framework  
 * Celery
+* Redis
+* Nginx
 * Dart
 * Go
 
-# Startup (docker)
+# Startup
 * Install docker & docker-compose  
   https://docs.docker.com/compose/
-* Start project with postgresql, redis & celery  
-  ```docker-compose up --build```
-
-# Startup (local)
-https://docs.djangoproject.com/en/3.1/intro/tutorial01/
-
-* Install Python 3  
-  https://www.python.org/downloads/
-* Install Redis  
-  https://stackabuse.com/asynchronous-tasks-in-django-with-redis-and-celery/  
-* Create and activate a virtual environment  
-  ```python -m venv venv```  
-  ```source venv/bin/activate```
-* Install requirements.txt  
-  ```pip install -r requirements.txt```  
 * Create a file for environment variables  
-  ```touch .env```
-* Add the following to the created .env file
+  ```touch .docker-env```
+* Add the following to the created .docker-env file
   ```
-  SECRET_KEY=asd123  
-  ALLOWED_HOSTS='localhost'  
-  CELERY_BROKER='redis://localhost:6379'
+  SECRET_KEY=123
+  DEBUG=True
+  ALLOWED_HOSTS='localhost'
+  DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+  LOGGING_LEVEL=INFO
+  CELERY_BROKER='redis://redis:6379/0'
+
+  SQL_ENGINE=django.db.backends.postgresql
+  SQL_DATABASE=postgres
+  SQL_USER=postgres
+  SQL_PASSWORD=postgres
+  SQL_HOST=postgres
+  SQL_PORT=5432
+
+  POSTGRES_DB=postgres
+  POSTGRES_USER=postgres
+  POSTGRES_PASSWORD=postgres
   ```
-* Start redis service and run it in a separate terminal  
-  ```celery -A dop3pod worker -l info```
-* Run migrations  
-  ```python manage.py migrate```
-* Create super user  
-  ```python manage.py createsuperuser```
-* Collect static files
-  ```python manage.py collectstatic```
-* Run server  
-  ```python manage.py runserver```
+* Start the django rest framework api with postgresql, redis, celery & nginx  
+  ```docker-compose up --build```
 
 # References & further reading
 ## Server setup
@@ -77,3 +70,4 @@ https://flutter.dev/docs/get-started/install
 https://soshace.com/dockerizing-django-with-postgres-redis-and-celery/
 https://github.com/chrisk314/django-celery-docker-example
 https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
+https://medium.com/swlh/django-deployed-docker-compose-1446909a0df9
