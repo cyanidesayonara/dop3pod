@@ -1,17 +1,26 @@
+import datetime
 from .models import Podcast
 from .serializers import PodcastSerializer
 from .tasks import scrape_podcasts
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, renderers
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import action
 from rest_framework.response import Response
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
 
 
 class PodcastViewSet(viewsets.ModelViewSet):
     queryset = Podcast.objects.all()
     serializer_class = PodcastSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = StandardResultsSetPagination
 
-    def list(self, request, *args, **kwargs):
-        queryset = Podcast.objects.all()
-        serializer = PodcastSerializer(queryset, many=True)
-        scrape_podcasts.delay()
-        return Response(serializer.data)
+    @action(url_path='scrape', detail=False, renderer_classes=[renderers.StaticHTMLRenderer])
+    def scrape(self, request, *args, **kwargs):
+        scrape_podcasts()
+        now = datetime.datetime.now()
+        html = "<html><body>It is now %s.</body></html>" % now
+        return Response(html)
