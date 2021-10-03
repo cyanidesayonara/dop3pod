@@ -60,11 +60,9 @@ https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-
 ## Django REST Framework
 https://www.django-rest-framework.org/tutorial/quickstart/
 
-## Go & Flutter
-https://blog.codefuture.dev/flutterdart-frontend-less-greatergolang-backend-api
-
 ## Flutter
 https://flutter.dev/docs/get-started/install
+https://flutter.dev/docs/cookbook/networking/fetch-data
 
 ## Dockerizing
 https://soshace.com/dockerizing-django-with-postgres-redis-and-celery/
