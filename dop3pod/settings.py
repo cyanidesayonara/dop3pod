@@ -46,6 +46,7 @@ REST_FRAMEWORK = {
 
 INSTALLED_APPS = [
     'rest_framework',
+    'django_filters',
     'podcasts.apps.PodcastsConfig',
     'whitenoise.runserver_nostatic',
     'django.contrib.admin',
