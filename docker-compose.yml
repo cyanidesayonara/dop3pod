@@ -2,34 +2,38 @@ version: '3.8'
 services:
   web:
     build: .
-    volumes:
-      - static:/app/static
-    command: gunicorn --workers=2 dop3pod.wsgi -b 0.0.0.0:8000
+    image: python:3.10-alpine
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py makemigrations &&
+             python manage.py migrate &&
+             gunicorn --workers=2 dop3pod.wsgi -b 0.0.0.0:8000"
     env_file:
       - ./.docker-env
     expose:
       - 8000
     depends_on:
       - postgres
-    image: web-image
+    volumes:
+      - static:/app/static
     networks:
       - main
     restart: on-failure
   nginx:
     build: ./nginx
-    volumes:
-      - static:/app/static
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - web
+    volumes:
+      - static:/app/static
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     networks:
       - main
   postgres:
-    image: postgres:13-alpine
+    image: postgres:14.2-alpine
     command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     env_file:
       - ./.docker-env
@@ -59,7 +63,7 @@ services:
       replicas: 2
       restart_policy:
         condition: on-failure
-    image: web-image
+    image: python:3.10-alpine
     networks:
       - main
     restart: on-failure
