@@ -10,7 +10,7 @@ services:
              python manage.py migrate &&
              gunicorn --workers=2 dop3pod.wsgi -b 0.0.0.0:8000"
     env_file:
-      - ./.docker-env
+      - ./.env
     expose:
       - 8000
     depends_on:
@@ -22,10 +22,10 @@ services:
     restart: on-failure
   nginx:
     build: ./nginx
+    env_file:
+      - ./.env
     ports:
-      - "80:80"
-      - "8888:8888"
-      - "4444:4444"
+      - "${NGINX_PORT}:${NGINX_PORT}"
     depends_on:
       - web
     networks:
@@ -34,7 +34,7 @@ services:
     image: postgres:14.2-alpine
 #    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     env_file:
-      - ./.docker-env
+      - ./.env
     ports:
       - "5432:5432"
     restart: on-failure
@@ -44,16 +44,19 @@ services:
       - pgdata:/var/lib/postgresql/data
   redis:
     image: redis:alpine
+    user: root
     ports:
       - "6379:6379"
     networks:
       - main
+    volumes:
+      - redis:/var/lib/redis
     restart: on-failure
   celery_worker:
     command: celery -A dop3pod worker -l info
     user: nobody
     env_file:
-      - ./.docker-env
+      - ./.env
     depends_on:
       - redis
       - postgres
@@ -72,3 +75,4 @@ networks:
 volumes:
   pgdata:
   static:
+  redis:

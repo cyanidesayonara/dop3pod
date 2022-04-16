@@ -16,8 +16,8 @@ dopepod will be a web/Android/iOS app capable of searching and playing thousands
 * Install docker & docker-compose  
   https://docs.docker.com/compose/
 * Create a file for environment variables  
-  ```touch .docker-env```
-* Add the following to the created .docker-env file
+  ```touch .env```
+* Add the following to the created .env file
   ```
   SECRET_KEY=123
   DEBUG=True
