@@ -5,6 +5,7 @@ services:
     image: python:3.10-alpine
     command: >
       sh -c "python manage.py collectstatic --noinput &&
+             sleep 5 &&
              python manage.py makemigrations &&
              python manage.py migrate &&
              gunicorn --workers=2 dop3pod.wsgi -b 0.0.0.0:8000"
@@ -22,18 +23,16 @@ services:
   nginx:
     build: ./nginx
     ports:
+      - "80:80"
       - "8888:8888"
       - "4444:4444"
     depends_on:
       - web
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
     networks:
       - main
   postgres:
     image: postgres:14.2-alpine
-    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+#    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     env_file:
       - ./.docker-env
     ports:

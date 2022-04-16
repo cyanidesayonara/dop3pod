@@ -25,5 +25,9 @@ class PodcastViewSet(viewsets.ModelViewSet):
     def scrape(self, request, *args, **kwargs):
         scrape_podcasts.delay()
         now = datetime.datetime.now()
-        html = "<html><body>It is now %s.</body></html>" % now
+        html = "<html><body>" \
+               "It is now %s." \
+               "<br />" \
+               "<button onclick='history.back()'>Go Back</button>" \
+               "</body></html>" % now
         return Response(html)
