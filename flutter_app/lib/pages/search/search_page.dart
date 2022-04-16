@@ -9,27 +9,26 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  List<Podcast> searchResults = [];
-  String resultCount = "0";
+  final List<Podcast> searchResults = [];
+  int resultCount = 0;
 
   searchDjango(String value) async {
-    if (value.isNotEmpty) {
-      SearchService.searchDjangoApi(value).then((data) {
-        setState(() {
-          data.results.forEach((result) {
-            searchResults.add(result);
-          });
-          resultCount = data.count.toString();
-        });
-      }).catchError((e) {
-        developer.log(e.toString());
-      });
-    } else {
+    SearchService.searchDjangoApi(value).then((data) {
       setState(() {
-        searchResults = [];
-        resultCount = "0";
+        data.results.forEach((result) {
+          searchResults.add(result);
+        });
+        resultCount = data.count;
       });
-    }
+    }).catchError((e) {
+      developer.log(e.toString());
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    searchDjango("");
   }
 
   @override
@@ -61,11 +60,11 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
           ),
-          resultCount == "0"
+          resultCount.toString() == "0"
               ? Padding(padding: const EdgeInsets.all(10.0))
               : Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Text(resultCount + ' results')),
+                  child: Text('$resultCount results')),
           SizedBox(
             height: 10.0,
           ),

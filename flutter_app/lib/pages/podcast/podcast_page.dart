@@ -11,7 +11,8 @@ class PodcastPage extends StatefulWidget {
 class _PodcastPageState extends State<PodcastPage> {
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as Podcast;
+    final Podcast podcast =
+        ModalRoute.of(context)!.settings.arguments as Podcast;
 
     return Scaffold(
         appBar: AppBar(
@@ -21,8 +22,8 @@ class _PodcastPageState extends State<PodcastPage> {
         body: Column(
           children: <Widget>[
             ListTile(
-              title: Text(args.title ?? ''),
-              subtitle: Text(args.artworkUrl ?? ''),
+              title: Text(podcast.title ?? ''),
+              subtitle: Text(podcast.artworkUrl ?? ''),
             ),
             Center(
               child: ButtonBar(

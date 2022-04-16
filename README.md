@@ -13,6 +13,7 @@ dopepod will be a web/Android/iOS app capable of searching and playing thousands
 * Go
 
 # Startup
+## Backend
 * Install docker & docker-compose  
   https://docs.docker.com/compose/
 * Create a file for environment variables  
@@ -21,7 +22,7 @@ dopepod will be a web/Android/iOS app capable of searching and playing thousands
   ```
   SECRET_KEY=123
   DEBUG=True
-  ALLOWED_HOSTS='localhost'
+  ALLOWED_HOSTS='localhost 10.0.2.2'
   DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
   LOGGING_LEVEL=INFO
   CELERY_BROKER='redis://redis:6379/0'
@@ -36,9 +37,23 @@ dopepod will be a web/Android/iOS app capable of searching and playing thousands
   POSTGRES_DB=postgres
   POSTGRES_USER=postgres
   POSTGRES_PASSWORD=postgres
+  
+  NGINX_PORT=80
   ```
 * Start the django rest framework api with postgresql, redis, celery & nginx  
   ```docker-compose up --build```
+
+## App
+* Install flutter & Android Studio
+  https://docs.flutter.dev/get-started/install/linux
+* Create a file for environment variables  
+  ```touch flutter_app/.env```
+* Add the following to the created .env file
+  ```
+  FLUTTER_HOSTNAME=http://10.0.2.2
+  ```
+* Run the flutter app in Android Studio or from the command line  
+  ```flutter run lib/main.dart```
 
 # References & further reading
 ## Server setup
