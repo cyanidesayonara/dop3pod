@@ -45,6 +45,7 @@ REST_FRAMEWORK = {
 # Application definition
 
 INSTALLED_APPS = [
+    'dop3pod',
     'rest_framework',
     'django_filters',
     'podcasts.apps.PodcastsConfig',
