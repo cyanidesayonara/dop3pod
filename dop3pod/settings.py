@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 import dj_database_url
 import dotenv
-import logging.config
-import django
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,10 +29,7 @@ if os.path.isfile(dotenv_file):
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.environ.get('DEBUG', default='False') == 'True':
-    DEBUG = True
-else:
-    DEBUG = False
+DEBUG = os.environ.get('DEBUG', default='False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
@@ -163,8 +159,6 @@ CELERY_RESULT_BACKEND = os.getenv('CELERY_BROKER')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
-timezone = 'Europe/Helsinki'
-result_expires = 1000
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -177,5 +171,4 @@ options.pop('sslmode', None)
 
 # ie if Heroku server
 if 'DATABASE_URL' in os.environ:
-    import dj_database_url
     DATABASES = {'default': dj_database_url.config()}

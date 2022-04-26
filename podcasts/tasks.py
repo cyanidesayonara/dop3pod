@@ -20,7 +20,7 @@ def scrape_podcasts():
 def stop_scraping():
     app = Celery('dop3pod')
     app.config_from_object('django.conf:settings', namespace='CELERY')
-    for worker, tasks in app.control.inspect().active().items():
+    for tasks in app.control.inspect().active().values():
         for task in tasks:
             try:
                 task_id = task['id']
@@ -28,5 +28,5 @@ def stop_scraping():
                 if task_id and name == 'scrape_podcasts_task':
                     app.control.revoke(task_id, terminate=True, signal='SIGKILL')
                     logger.info(f'Stopped scraping task id: {task_id}')
-            except KeyError as e:
-                logger.error(f"Failed to stop scraping: {e}")
+            except KeyError as error:
+                logger.error(f"Failed to stop scraping: {error}")

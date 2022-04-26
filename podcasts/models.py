@@ -9,7 +9,7 @@ UNWANTED_GENRE_ID = 1314
 
 class GenreManager(models.Manager):
     def get_queryset(self):
-        return super(GenreManager, self).get_queryset().select_related("supergenre")
+        return super().get_queryset().select_related("supergenre")
 
 
 class Genre(models.Model):
@@ -25,7 +25,7 @@ class Genre(models.Model):
 
 class PodcastManager(models.Manager):
     def get_queryset(self):
-        return super(PodcastManager, self).get_queryset().select_related("genre", "genre__supergenre")
+        return super().get_queryset().select_related("genre", "genre__supergenre")
 
 
 class Podcast(models.Model):
