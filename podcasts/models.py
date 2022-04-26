@@ -13,14 +13,14 @@ class GenreManager(models.Manager):
 
 
 class Genre(models.Model):
-    name = models.CharField(primary_key=True, max_length=50)
+    title = models.CharField(primary_key=True, max_length=50)
     genre_id = models.IntegerField(unique=True)
     supergenre = models.ForeignKey("podcasts.Genre", on_delete=models.SET_NULL, null=True, default=None)
 
     objects = GenreManager()
 
     class Meta:
-        ordering = ("name",)
+        ordering = ("title",)
 
 
 class PodcastManager(models.Manager):
