@@ -1,7 +1,7 @@
 import datetime
-from .models import Podcast
-from .serializers import PodcastSerializer
-from .tasks import scrape_podcasts
+from .models import Podcast, Genre
+from .serializers import PodcastSerializer, GenreSerializer
+from .tasks import scrape_podcasts, stop_scraping
 from rest_framework import viewsets, permissions, renderers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
@@ -26,8 +26,32 @@ class PodcastViewSet(viewsets.ModelViewSet):
         scrape_podcasts.delay()
         now = datetime.datetime.now()
         html = "<html><body>" \
-               "It is now %s." \
-               "<br />" \
-               "<button onclick='history.back()'>Go Back</button>" \
-               "</body></html>" % now
+            "Scraping started" \
+            "<br />" \
+            f"It is now {now}." \
+            "<br />" \
+            "<button onclick='history.back()'>Go Back</button>" \
+            "</body></html>"
         return Response(html)
+
+    @action(url_path='stop', detail=False, renderer_classes=[renderers.StaticHTMLRenderer])
+    def stop(self, request, *args, **kwargs):
+        stop_scraping.delay()
+        now = datetime.datetime.now()
+        html = "<html><body>" \
+            "Scraping stopped" \
+            "<br />" \
+            f"It is now {now}." \
+            "<br />" \
+            "<button onclick='history.back()'>Go Back</button>" \
+            "</body></html>"
+        return Response(html)
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    search_fields = ['title']
+    filter_backends = [filters.SearchFilter]
+    permission_classes = [permissions.AllowAny]
+    pagination_class = StandardResultsSetPagination
