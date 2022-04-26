@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/models/Podcast.dart';
 import 'package:flutter_app/services/search_service.dart';
 import 'package:flutter/material.dart';
@@ -35,14 +36,16 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("dopepod"),
+        title: Text('dopepod', style: GoogleFonts.orbitron()),
         centerTitle: true,
+        backgroundColor: Color.fromRGBO(0, 191, 165, 1.0),
       ),
       body: ListView(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: TextField(
+              style: GoogleFonts.exo(),
               onChanged: (val) {
                 searchResults.clear();
                 searchDjango(val);
@@ -60,14 +63,12 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
           ),
-          resultCount.toString() == "0"
-              ? Padding(padding: const EdgeInsets.all(10.0))
-              : Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text('$resultCount results')),
-          SizedBox(
-            height: 10.0,
-          ),
+          Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+                '$resultCount results',
+                style: GoogleFonts.exo(),
+              )),
           ListView.builder(
             shrinkWrap: true,
             itemCount: searchResults.length,
@@ -83,13 +84,17 @@ class _SearchPageState extends State<SearchPage> {
 
 Widget buildPodcastCard(Podcast podcast, BuildContext context) {
   return Padding(
-    padding: const EdgeInsets.all(8.0),
+    padding: const EdgeInsets.all(16.0),
     child: Column(
       children: <Widget>[
         ListTile(
-          title: Text(podcast.title ?? ''),
-          subtitle: Text(podcast.artworkUrl ?? ''),
+          title: Text(
+            podcast.title ?? '',
+            style: GoogleFonts.exo(),
+          ),
         ),
+        Image(
+            image: NetworkImage('https://${podcast.artworkUrl}/100x100bb.jpg')),
         Center(
           child: ButtonBar(
             children: [
