@@ -23,23 +23,40 @@ class _PodcastPageState extends State<PodcastPage> {
         ),
         body: Padding(
             padding: EdgeInsets.all(16.0),
-            child: ListView(
-              children: <Widget>[
-                ListTile(
-                  title: Text(
-                    podcast.title ?? '',
-                    style: GoogleFonts.exo(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      podcast.title ?? '',
+                      style: TextStyle(
+                        fontFamily: GoogleFonts.exo().fontFamily,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
                   ),
-                  subtitle: Text(
-                    podcast.description ?? '',
-                    style: GoogleFonts.exo(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      'By: ${podcast.artist ?? ''}',
+                      style: GoogleFonts.exo(),
+                    ),
                   ),
-                ),
-                Image(
-                    image: NetworkImage(
-                        'https://${podcast.artworkUrl}/600x600bb.jpg')),
-                Center(
-                  child: ButtonBar(
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      podcast.description ?? '',
+                      style: GoogleFonts.exo(),
+                    ),
+                  ),
+                  Image(
+                    fit: BoxFit.contain,
+                      image: NetworkImage(
+                          'https://${podcast.artworkUrl}/600x600bb.jpg')),
+                  ButtonBar(
                     alignment: MainAxisAlignment.start,
                     children: <Widget>[
                       IconButton(
@@ -50,8 +67,9 @@ class _PodcastPageState extends State<PodcastPage> {
                       Text('Back', style: GoogleFonts.exo())
                     ],
                   ),
-                ),
-              ],
-            )));
+                ],
+            )
+        )
+    );
   }
 }

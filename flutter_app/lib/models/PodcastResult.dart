@@ -1,5 +1,4 @@
 import 'package:flutter_app/models/Podcast.dart';
-import 'dart:developer' as developer;
 
 class PodcastResult {
   final int count;

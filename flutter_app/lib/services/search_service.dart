@@ -5,9 +5,9 @@ import 'dart:convert';
 
 class SearchService {
   static Future<PodcastResult> searchDjangoApi(String query) async {
-    String hostname =
+    final String hostname =
         dotenv.get("FLUTTER_HOSTNAME", fallback: "https://dopepod.net");
-    String url = '$hostname/podcasts/?search=$query';
+    final String url = '$hostname/podcasts/?search=$query';
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       return PodcastResult.fromJson(jsonDecode(response.body));

@@ -40,75 +40,66 @@ class _SearchPageState extends State<SearchPage> {
         centerTitle: true,
         backgroundColor: Color.fromRGBO(0, 191, 165, 1.0),
       ),
-      body: ListView(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextField(
-              style: GoogleFonts.exo(),
-              onChanged: (val) {
-                searchResults.clear();
-                searchDjango(val);
-              },
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.only(left: 25.0),
-                hintText: 'Search by Podcast Title',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.0),
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {},
-                ),
-              ),
-            ),
-          ),
-          Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                '$resultCount results',
-                style: GoogleFonts.exo(),
-              )),
-          ListView.builder(
-            shrinkWrap: true,
+      body: Container(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 200,
+                childAspectRatio: 2 / 3,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20),
             itemCount: searchResults.length,
             itemBuilder: (BuildContext context, int index) {
               return buildPodcastCard(searchResults[index], context);
             },
           ),
-        ],
+        )
       ),
     );
   }
 }
 
 Widget buildPodcastCard(Podcast podcast, BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Column(
-      children: <Widget>[
-        ListTile(
-          title: Text(
+  return GridTile(
+      header: GridTileBar(
+        title: Container(
+          child: Text(
             podcast.title ?? '',
-            style: GoogleFonts.exo(),
+            style: TextStyle(
+                fontSize: 10.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: GoogleFonts.exo().fontFamily,
+                color: Colors.black,
+                overflow: TextOverflow.fade
+            ),
           ),
+        )
+      ),
+      child: Ink.image(
+        image: NetworkImage('https://${podcast.artworkUrl}/200x200bb.jpg'),
+        fit: BoxFit.contain,
+        child: InkWell(
+          splashColor: Colors.grey,
+          onTap: () {
+            Navigator.pushNamed(context, '/podcast',
+                arguments: podcast);
+          },
         ),
-        Image(
-            image: NetworkImage('https://${podcast.artworkUrl}/100x100bb.jpg')),
-        Center(
-          child: ButtonBar(
-            children: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/podcast',
-                        arguments: podcast);
-                  },
-                  icon: Icon(Icons.link))
-            ],
+      ),
+    footer: GridTileBar(
+        title: Container(
+          child: Text(
+            'By: ${podcast.artist ?? ''}',
+            style: TextStyle(
+                fontSize: 10.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: GoogleFonts.exo().fontFamily,
+                color: Colors.black,
+                overflow: TextOverflow.fade
+            ),
           ),
-        ),
-        Divider(color: Colors.black)
-      ],
+        )
     ),
   );
 }
