@@ -21,54 +21,79 @@ class _PodcastPageState extends State<PodcastPage> {
           centerTitle: true,
           backgroundColor: Color.fromRGBO(0, 191, 165, 1.0),
         ),
-        body: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      podcast.title ?? '',
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.exo().fontFamily,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold
+        body: SingleChildScrollView(
+          child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: RichText(
+                        maxLines: 2,
+                        text: TextSpan(
+                          text: podcast.title ?? '',
+                          style: TextStyle(
+                              fontFamily: GoogleFonts.exo().fontFamily,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
+                          ),
+                        ),
+                      )
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: RichText(
+                        maxLines: 2,
+                        text: TextSpan(
+                          text: 'By: ',
+                          style: TextStyle(
+                            fontFamily: GoogleFonts.exo().fontFamily,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black
+                          ),
+                          children: [
+                            TextSpan(
+                              text: podcast.artist ?? '',
+                              style: TextStyle(
+                                fontFamily: GoogleFonts.exo().fontFamily,
+                                fontSize: 12.0,
+                                decoration: TextDecoration.underline,
+                                overflow: TextOverflow.fade
+                              ),
+                            )
+                          ]
+                        )
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'By: ${podcast.artist ?? ''}',
-                      style: GoogleFonts.exo(),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        podcast.description ?? '',
+                        style: GoogleFonts.exo(),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      podcast.description ?? '',
-                      style: GoogleFonts.exo(),
-                    ),
-                  ),
-                  Image(
-                    fit: BoxFit.contain,
+                    Image(
+                      fit: BoxFit.contain,
                       image: NetworkImage(
                           'https://${podcast.artworkUrl}/600x600bb.jpg')),
-                  ButtonBar(
-                    alignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: Icon(Icons.arrow_back)),
-                      Text('Back', style: GoogleFonts.exo())
-                    ],
-                  ),
-                ],
-            )
+                    ButtonBar(
+                      alignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.arrow_back)),
+                        Text('Back', style: GoogleFonts.exo())
+                      ],
+                    ),
+                  ],
+              )
+          )
         )
     );
   }
