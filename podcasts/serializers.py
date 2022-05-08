@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from podcasts.models import Podcast, Genre
+from podcasts.models import Podcast, Genre, Episode
 
 
 class PodcastSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Podcast
         fields = [
+            'id',
             'title',
             'artist',
             'pod_id',
@@ -15,6 +16,7 @@ class PodcastSerializer(serializers.HyperlinkedModelSerializer):
             'country',
             'explicit',
             'primary_genre',
+            'genres',
             'description',
             'copyright_text',
             'discriminate'
@@ -28,4 +30,19 @@ class GenreSerializer(serializers.HyperlinkedModelSerializer):
             'title',
             'genre_id',
             'supergenre'
+        ]
+
+
+class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Episode
+        fields = [
+            'podcast',
+            'pub_date',
+            'title',
+            'description',
+            'length',
+            'url',
+            'kind',
+            'size',
         ]

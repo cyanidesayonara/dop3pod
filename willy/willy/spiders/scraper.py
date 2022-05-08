@@ -1,10 +1,8 @@
-import json
-
 import scrapy
 import requests
 from string import Template
 from django.db import transaction
-from podcasts.models import Genre, Podcast
+from podcasts.models import Genre, Podcast, get_episodes
 from willy.exceptions import WillyException
 from lxml import html as lxml_html
 
@@ -120,13 +118,8 @@ class WillyTheSpider(scrapy.Spider):
 
     def build_podcast(self, data):
         try:
-            self.log(f"Building podcast from itunes lookup data: {json.dumps(data, indent=4)}")
-
             itunes_url = data["collectionViewUrl"].split("?")[0]
             feed_url = data["feedUrl"]
-
-            self.verify_feed_url(feed_url)
-
             pod_id = data["collectionId"]
             title = data["collectionName"]
             artist = data["artistName"]
@@ -149,21 +142,18 @@ class WillyTheSpider(scrapy.Spider):
             )
 
             podcast = self.scrape_itunes(podcast, itunes_url)
+            self.verify_feed_url(podcast, feed_url)
             self.update_or_create_podcast(podcast, genres)
         except (IndexError, KeyError, WillyException) as e:
             raise WillyException(f"Error scraping podcast: {e}")
 
-    def verify_feed_url(self, feed_url):
+    def verify_feed_url(self, podcast, feed_url):
         self.log(f"Verifying feed url {feed_url}")
-
-        try:
-            response = requests.get(feed_url, timeout=10)
-            if response.status_code != 200:
-                raise WillyException(f"Feed url is not valid: {feed_url}")
-        except requests.exceptions.ConnectionError as e:
-            raise WillyException(f"Feed url verification error: {e}")
-
-        self.log(f"Feed url verified: {feed_url}")
+        episodes = get_episodes(podcast)
+        if episodes:
+            self.log(f"{len(episodes)} episodes fetched successfully from {feed_url}")
+        else:
+            raise WillyException(f"Feed url is not valid: {feed_url}")
 
     def scrape_itunes(self, podcast, itunes_url):
         self.log(f"Scraping itunes data for {podcast.title}")
@@ -183,7 +173,7 @@ class WillyTheSpider(scrapy.Spider):
         self.log(f"Updating or creating podcast {podcast.title}")
 
         with transaction.atomic():
-            podcast, created = Podcast.objects.select_related(None).select_for_update().update_or_create(
+            podcast, created = Podcast.objects.select_for_update().update_or_create(
                 pod_id=podcast.pod_id,
                 defaults={
                     "title": podcast.title,

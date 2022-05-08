@@ -1,14 +1,13 @@
 from django.contrib import admin
 from django.urls import include, path
-from podcasts.views import PodcastViewSet, GenreViewSet
 from rest_framework import routers
+from podcasts.views import PodcastViewSet, GenreViewSet, EpisodeViewSet
 from .views import privacy
 
-
-# Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'podcasts', PodcastViewSet)
 router.register(r'genres', GenreViewSet)
+router.register(r'episodes', EpisodeViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

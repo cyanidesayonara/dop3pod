@@ -1,0 +1,24 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width'>
+  <title>The dopepod Privacy Policy</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Orbitron"/>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Exo"/>
+</head>
+<body>
+<header>
+  <h1>dopepod</h1>
+</header>
+<article>
+  <p>Scraping {{ action }}</p>
+  <br />
+  <p>It is now {{ now }}.</p>
+  <button onclick='history.back()'>Go Back</button>
+</article>
+</body>
+</html>
