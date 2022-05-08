@@ -1,19 +1,22 @@
 import datetime
-from .models import Podcast, Genre
-from .serializers import PodcastSerializer, GenreSerializer
-from .tasks import scrape_podcasts, stop_scraping
-from rest_framework import viewsets, permissions, renderers
+import logging
+from rest_framework import filters, viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import filters
+from django.shortcuts import render, get_object_or_404
+from .models import Podcast, Genre, Episode, get_episodes
+from .serializers import PodcastSerializer, GenreSerializer, EpisodeSerializer
+from .tasks import scrape_podcasts, stop_scraping
+
+logger = logging.getLogger(__name__)
 
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
 
 
-class PodcastViewSet(viewsets.ModelViewSet):
+class PodcastViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Podcast.objects.all()
     serializer_class = PodcastSerializer
     search_fields = ['title']
@@ -21,36 +24,41 @@ class PodcastViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     pagination_class = StandardResultsSetPagination
 
-    @action(url_path='scrape', detail=False, renderer_classes=[renderers.StaticHTMLRenderer])
-    def scrape(self, request, *args, **kwargs):
+    @staticmethod
+    @action(url_path='scrape', detail=False)
+    def scrape(request):
         scrape_podcasts.delay()
         now = datetime.datetime.now()
-        html = "<html><body>" \
-            "Scraping started" \
-            "<br />" \
-            f"It is now {now}." \
-            "<br />" \
-            "<button onclick='history.back()'>Go Back</button>" \
-            "</body></html>"
-        return Response(html)
+        return render(request, 'scraping.html', {'now': now, 'action': 'started'})
 
-    @action(url_path='stop', detail=False, renderer_classes=[renderers.StaticHTMLRenderer])
-    def stop(self, request, *args, **kwargs):
+    @staticmethod
+    @action(url_path='stop', detail=False)
+    def stop(request):
         stop_scraping.delay()
         now = datetime.datetime.now()
-        html = "<html><body>" \
-            "Scraping stopped" \
-            "<br />" \
-            f"It is now {now}." \
-            "<br />" \
-            "<button onclick='history.back()'>Go Back</button>" \
-            "</body></html>"
-        return Response(html)
+        return render(request, 'scraping.html', {'now': now, 'action': 'stopped'})
+
+    @staticmethod
+    @action(url_path='episodes', detail=True, serializer_class=EpisodeSerializer)
+    def get_episodes(request, pk=None):
+        podcast = get_object_or_404(Podcast, pk=pk)
+        episodes = get_episodes(podcast)
+        serializer = EpisodeSerializer(episodes, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    search_fields = ['title']
+    filter_backends = [filters.SearchFilter]
+    permission_classes = [permissions.AllowAny]
+    pagination_class = StandardResultsSetPagination
+
+
+class EpisodeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Episode.objects.all()
+    serializer_class = EpisodeSerializer
     search_fields = ['title']
     filter_backends = [filters.SearchFilter]
     permission_classes = [permissions.AllowAny]

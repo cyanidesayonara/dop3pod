@@ -1,16 +1,21 @@
 # dop3pod
-This will be the 3.0 version of my dear old pet project [dopepod](https://github.com/cyanidesayonara/dopepod).
+(This is version 3.0 of my dear old pet project
+[dopepod](https://github.com/cyanidesayonara/dopepod))
 
-dopepod will be a web/Android/iOS app capable of searching and playing thousands of free podcasts.
+dopepod is an
+[Android app](https://play.google.com/store/apps/details?id=com.cyanidesayonara.dopepod)
+that can search through and play thousands of free podcasts found online.
 
 # Ingredients
 * Python 3  
-* Django Rest Framework  
+* Django Rest Framework
+* Scrapy
+* Docker
 * Celery
 * Redis
 * Nginx
 * Dart
-* Go
+* Flutter
 
 # Startup
 ## Backend

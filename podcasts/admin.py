@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from podcasts.models import Podcast, Genre
+from podcasts.models import Podcast, Genre, Episode
 
 
 @admin.register(Podcast)
@@ -46,4 +46,28 @@ class GenreAdmin(admin.ModelAdmin):
         'title',
         'genre_id',
         'supergenre'
+    )
+
+
+@admin.register(Episode)
+class EpisodeAdmin(admin.ModelAdmin):
+    list_display = (
+        'podcast',
+        'pub_date',
+        'title',
+        'description',
+        'length',
+        'url',
+        'kind',
+        'size',
+    )
+    fields = (
+        'podcast',
+        'pub_date',
+        'title',
+        'description',
+        'length',
+        'url',
+        'kind',
+        'size',
     )
