@@ -1,4 +1,4 @@
-FROM redis:6.2.6-alpine
+FROM redis:7-alpine
 
 CMD ["chown", "redis:redis", "-R", "/etc"]
 CMD ["chown", "redis:redis", "-R", "/var/lib"]
@@ -9,4 +9,6 @@ CMD ["sudo", "chmod", "755", "/etc" ]
 CMD ["sudo", "chmod", "770", "/var/lib" ]
 CMD ["sudo", "chmod", "777", "/run" ]
 
-CMD [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+COPY redis.conf /usr/local/etc/redis/redis.conf
+COPY init.sh ./
+RUN chmod +x init.sh
