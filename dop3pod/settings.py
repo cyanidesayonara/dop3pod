@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'dop3pod.wsgi.application'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://redis:6379',
+        'LOCATION': os.getenv('REDIS_URL'),
     }
 }
 

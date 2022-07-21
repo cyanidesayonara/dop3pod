@@ -31,6 +31,7 @@ that can search through and play thousands of free podcasts found online.
   DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
   LOGGING_LEVEL=INFO
   CELERY_BROKER='redis://redis:6379/0'
+  REDIS_URL='redis://redis:6379'
 
   SQL_ENGINE=django.db.backends.postgresql
   SQL_DATABASE=postgres
