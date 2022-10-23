@@ -112,21 +112,33 @@ Widget buildPodcastTile(Podcast podcast, BuildContext context) {
     Positioned.fill(
         bottom: 0.0,
         child: Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4.0),
-                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 5,
-                        blurRadius: 5,
+            padding: EdgeInsets.all(5.0),
+              child: GridTile(
+                  header: Container(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image(
+                          fit: BoxFit.contain,
+                          image: NetworkImage(
+                              'https://${podcast.artworkUrl}/600x600bb.jpg')
+
                       ),
-                    ]),
-                child: GridTile(
-                    header: Padding(
-                      padding: EdgeInsets.all(10.0),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                  ),
+                  child: Padding(
+                      padding: EdgeInsets.only(top: 190),
                       child: RichText(
                         maxLines: 2,
                         text: TextSpan(
@@ -139,32 +151,25 @@ Widget buildPodcastTile(Podcast podcast, BuildContext context) {
                               overflow: TextOverflow.fade),
                         ),
                       ),
-                    ),
-                    child: Image(
-                      image: NetworkImage(
-                          'https://${podcast.artworkUrl}/200x200bb.jpg'),
-                    ),
-                    footer: Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: RichText(
-                          maxLines: 2,
-                          text: TextSpan(
-                              text: 'By: ',
+                  ),
+                  footer: RichText(
+                      maxLines: 2,
+                      text: TextSpan(
+                          text: 'By: ',
+                          style: TextStyle(
+                              fontFamily: GoogleFonts.exo().fontFamily,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                          children: [
+                            TextSpan(
+                              text: podcast.artist ?? '',
                               style: TextStyle(
-                                  fontFamily: GoogleFonts.exo().fontFamily,
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black),
-                              children: [
-                                TextSpan(
-                                  text: podcast.artist ?? '',
-                                  style: TextStyle(
-                                    fontFamily: GoogleFonts.exo().fontFamily,
-                                    fontSize: 10.0,
-                                  ),
-                                )
-                              ])),
-                    ))))),
+                                fontFamily: GoogleFonts.exo().fontFamily,
+                                fontSize: 10.0,
+                              ),
+                            )
+                          ]))))),
     Positioned.fill(
         child: Padding(
             padding: EdgeInsets.all(10.0),

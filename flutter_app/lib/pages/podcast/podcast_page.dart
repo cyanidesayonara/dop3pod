@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/models/Podcast.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'dart:developer' as developer;
 
 class PodcastPage extends StatefulWidget {
   final Podcast podcast;
@@ -28,7 +27,7 @@ class _PodcastPageState extends State<PodcastPage> {
         resultCount = episodes.length;
       });
     }).catchError((e) {
-      developer.log(e.toString());
+      throw Exception('Exception ${e.toString()}');
     });
   }
 
@@ -53,8 +52,31 @@ class _PodcastPageState extends State<PodcastPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Container(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image(
+                            fit: BoxFit.contain,
+                            image: NetworkImage(
+                                'https://${widget.podcast.artworkUrl}/600x600bb.jpg')
+
+                        ),
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                    ),
                     Padding(
-                        padding: EdgeInsets.only(bottom: 8.0),
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
                         child: RichText(
                           maxLines: 2,
                           text: TextSpan(
@@ -95,15 +117,11 @@ class _PodcastPageState extends State<PodcastPage> {
                         style: GoogleFonts.exo(),
                       ),
                     ),
-                    Image(
-                        fit: BoxFit.contain,
-                        image: NetworkImage(
-                            'https://${widget.podcast.artworkUrl}/600x600bb.jpg')),
-                    Padding(padding: const EdgeInsets.all(8.0), child: null),
-                    PaginatedDataTable(
-                      header: Text(
-                        '$resultCount episodes',
-                        style: GoogleFonts.exo(),
+                    Padding(padding: const EdgeInsets.all(8), child: null),
+                    Theme(data: Theme.of(context).copyWith(
+                      cardColor: Color.fromRGBO(225, 225, 225, 1)
+                    ), child: PaginatedDataTable(
+                      header: Text('Episode list - $resultCount episodes', style: TextStyle(fontFamily: GoogleFonts.exo().fontFamily),
                       ),
                       source: DataSource(context, episodes),
                       columnSpacing: 10.0,
@@ -113,14 +131,12 @@ class _PodcastPageState extends State<PodcastPage> {
                       horizontalMargin: 15,
                       columns: [
                         DataColumn(label: Text('')),
-                        DataColumn(
-                            label: Text('Title', style: GoogleFonts.exo())),
-                        DataColumn(
-                            label: Text('Length', style: GoogleFonts.exo())),
+                        DataColumn(label: Text('Title', style: GoogleFonts.exo())),
+                        DataColumn(label: Text('Length', style: GoogleFonts.exo())),
                       ],
                       showCheckboxColumn: false,
                       showFirstLastButtons: true,
-                    ),
+                    )),
                     ButtonBar(
                       alignment: MainAxisAlignment.start,
                       children: <Widget>[
@@ -148,6 +164,7 @@ class DataSource extends DataTableSource {
     await audioPlayer.stop();
     await audioPlayer.setUrl(url);
     await audioPlayer.play();
+
   }
 
   int selectedCount = 0;
@@ -156,8 +173,15 @@ class DataSource extends DataTableSource {
     assert(index >= 0);
     assert(index < episodes.length);
     final episode = episodes[index];
+    final color = MaterialStateColor.resolveWith((states) {
+      if (index % 2 == 0) {
+        return Color.fromRGBO(0, 191, 165, 0.4);
+      }
+      return Color.fromRGBO(255, 255, 255, 0.4);
+    });
     return DataRow.byIndex(
         index: index,
+        color: color,
         cells: [
           DataCell(SizedBox(
               child: Text((index + 1).toString()),

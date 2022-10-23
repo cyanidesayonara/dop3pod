@@ -12,7 +12,7 @@ class SearchService {
     if (response.statusCode == 200) {
       return PodcastResult.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to load podcasts');
+      throw Exception('Failed to load podcasts from $url');
     }
   }
 }
