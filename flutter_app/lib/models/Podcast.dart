@@ -2,8 +2,8 @@ class Podcast {
   final int id;
   final String? title;
   final String? artist;
-  final int podId;
-  final String feedUrl;
+  final int? podId;
+  final String? feedUrl;
   final String? artworkUrl;
   final String? reviewsUrl;
   final String? country;
@@ -17,16 +17,16 @@ class Podcast {
     required this.id,
     required this.title,
     required this.artist,
-    required this.podId,
-    required this.feedUrl,
     required this.artworkUrl,
-    required this.reviewsUrl,
-    required this.country,
-    required this.explicit,
-    required this.primaryGenre,
     required this.copyrightText,
     required this.description,
-    required this.discriminate,
+    this.podId,
+    this.feedUrl,
+    this.reviewsUrl,
+    this.country,
+    this.explicit,
+    this.primaryGenre,
+    this.discriminate,
   });
 
   factory Podcast.fromJson(Map<String, dynamic> json) {

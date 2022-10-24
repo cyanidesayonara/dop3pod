@@ -1,9 +1,12 @@
 import 'package:flutter_app/models/Episode.dart';
+import 'package:flutter_app/page_manager.dart';
+import 'package:flutter_app/pages/search/search_page.dart';
 import 'package:flutter_app/services/episode_service.dart';
+import 'package:flutter_app/services/service_locator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_app/models/Podcast.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:intl/intl.dart';
 
 class PodcastPage extends StatefulWidget {
   final Podcast podcast;
@@ -41,7 +44,24 @@ class _PodcastPageState extends State<PodcastPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('dopepod', style: GoogleFonts.orbitron()),
+          iconTheme: IconThemeData(
+            color: Colors.black, //change your color here
+          ),
+          title: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SearchPage(),
+                  ));
+            },
+            child: Text('dopepod',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontFamily: GoogleFonts.orbitron().fontFamily,
+                  fontSize: 24.0,
+                )),
+          ),
           centerTitle: true,
           backgroundColor: Color.fromRGBO(0, 191, 165, 1.0),
         ),
@@ -58,9 +78,7 @@ class _PodcastPageState extends State<PodcastPage> {
                         child: Image(
                             fit: BoxFit.contain,
                             image: NetworkImage(
-                                'https://${widget.podcast.artworkUrl}/600x600bb.jpg')
-
-                        ),
+                                'https://${widget.podcast.artworkUrl}/600x600bb.jpg')),
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -80,9 +98,9 @@ class _PodcastPageState extends State<PodcastPage> {
                         child: RichText(
                           maxLines: 2,
                           text: TextSpan(
-                            text: widget.podcast.title ?? '',
+                            text: widget.podcast.title,
                             style: TextStyle(
-                                fontFamily: GoogleFonts.exo().fontFamily,
+                                fontFamily: GoogleFonts.exo2().fontFamily,
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black),
@@ -95,57 +113,101 @@ class _PodcastPageState extends State<PodcastPage> {
                           text: TextSpan(
                               text: 'By: ',
                               style: TextStyle(
-                                  fontFamily: GoogleFonts.exo().fontFamily,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.bold,
+                                  fontFamily: GoogleFonts.exo2().fontFamily,
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.normal,
                                   color: Colors.black),
                               children: [
                                 TextSpan(
                                   text: widget.podcast.artist ?? '',
                                   style: TextStyle(
-                                      fontFamily: GoogleFonts.exo().fontFamily,
-                                      fontSize: 12.0,
+                                      fontFamily: GoogleFonts.exo2().fontFamily,
+                                      fontSize: 14.0,
                                       decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.bold,
                                       overflow: TextOverflow.fade),
                                 )
                               ])),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(bottom: 8.0),
+                      padding: EdgeInsets.only(bottom: 10),
                       child: Text(
                         widget.podcast.description ?? '',
-                        style: GoogleFonts.exo(),
+                        style: GoogleFonts.exo2(),
                       ),
                     ),
-                    Padding(padding: const EdgeInsets.all(8), child: null),
-                    Theme(data: Theme.of(context).copyWith(
-                      cardColor: Color.fromRGBO(225, 225, 225, 1)
-                    ), child: PaginatedDataTable(
-                      header: Text('Episode list - $resultCount episodes', style: TextStyle(fontFamily: GoogleFonts.exo().fontFamily),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text(
+                        widget.podcast.copyrightText?.substring(1) ?? '',
+                        style: TextStyle(
+                            fontFamily: GoogleFonts.exo2().fontFamily,
+                            fontStyle: FontStyle.italic),
                       ),
-                      source: DataSource(context, episodes),
-                      columnSpacing: 10.0,
-                      rowsPerPage: 25,
-                      headingRowHeight: 35,
-                      dataRowHeight: 100,
-                      horizontalMargin: 15,
-                      columns: [
-                        DataColumn(label: Text('')),
-                        DataColumn(label: Text('Title', style: GoogleFonts.exo())),
-                        DataColumn(label: Text('Length', style: GoogleFonts.exo())),
-                      ],
-                      showCheckboxColumn: false,
-                      showFirstLastButtons: true,
-                    )),
+                    ),
+                    Theme(
+                        data: Theme.of(context).copyWith(
+                            cardColor: Color.fromRGBO(225, 225, 225, 1)),
+                        child: PaginatedDataTable(
+                          header: Text(
+                            'Episode list - $resultCount episodes',
+                            style: TextStyle(
+                                fontFamily: GoogleFonts.exo2().fontFamily,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          source: DataSource(context, episodes, widget.podcast),
+                          columnSpacing: 10,
+                          rowsPerPage: 25,
+                          headingRowHeight: 25,
+                          dataRowHeight: 100,
+                          horizontalMargin: 15,
+                          columns: [
+                            DataColumn(label: Text('')),
+                            DataColumn(
+                                label: Text('Title',
+                                    style: TextStyle(
+                                        fontFamily:
+                                            GoogleFonts.exo2().fontFamily,
+                                        fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Date',
+                                    style: TextStyle(
+                                        fontFamily:
+                                            GoogleFonts.exo2().fontFamily,
+                                        fontWeight: FontWeight.bold))),
+                            DataColumn(
+                                label: Text('Length',
+                                    style: TextStyle(
+                                        fontFamily:
+                                            GoogleFonts.exo2().fontFamily,
+                                        fontWeight: FontWeight.bold))),
+                          ],
+                          showCheckboxColumn: false,
+                          showFirstLastButtons: true,
+                        )),
                     ButtonBar(
                       alignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: Icon(Icons.arrow_back)),
-                        Text('Back', style: GoogleFonts.exo())
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SearchPage(),
+                                ));
+                          },
+                          child: Icon(Icons.arrow_back),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SearchPage(),
+                                ));
+                          },
+                          child: Text('Back', style: GoogleFonts.exo2()),
+                        ),
                       ],
                     ),
                   ],
@@ -154,17 +216,27 @@ class _PodcastPageState extends State<PodcastPage> {
 }
 
 class DataSource extends DataTableSource {
-  DataSource(this.context, this.episodes);
+  DataSource(this.context, this.episodes, this.podcast);
 
-  final AudioPlayer audioPlayer = AudioPlayer();
+  final pageManager = getIt<PageManager>();
   final List<Episode> episodes;
+  final Podcast podcast;
   BuildContext context;
 
-  playAudio(String url) async {
-    await audioPlayer.stop();
-    await audioPlayer.setUrl(url);
-    await audioPlayer.play();
+  addToPlaylist(Episode episode) async {
+    var playAudio;
+    playAudio = () {
+      pageManager.play();
+      pageManager.currentSongNotifier.removeListener(playAudio);
+    };
 
+    await pageManager.add(episode, podcast);
+
+    if (pageManager.playlistNotifier.value.isNotEmpty) {
+      pageManager.next();
+    }
+
+    pageManager.currentSongNotifier.addListener(playAudio);
   }
 
   int selectedCount = 0;
@@ -179,21 +251,29 @@ class DataSource extends DataTableSource {
       }
       return Color.fromRGBO(255, 255, 255, 0.4);
     });
+    final df = DateFormat('dd MMM yyyy');
+    final pubDate = df.format(DateTime.parse(episode.pubDate ?? ''));
     return DataRow.byIndex(
         index: index,
         color: color,
         cells: [
           DataCell(SizedBox(
-              child: Text((index + 1).toString()),
+              child: Text('${index + 1}',
+                  style: TextStyle(
+                      fontFamily: GoogleFonts.exo2().fontFamily,
+                      fontWeight: FontWeight.bold)),
               width: MediaQuery.of(context).size.width * 0.08)),
           DataCell(SizedBox(
               child: Text(episode.title ?? '', maxLines: 5),
-              width: MediaQuery.of(context).size.width * 0.55)),
+              width: MediaQuery.of(context).size.width * 0.43)),
+          DataCell(SizedBox(
+              child: Text(pubDate),
+              width: MediaQuery.of(context).size.width * 0.12)),
           DataCell(SizedBox(
               child: Text(episode.length ?? ''),
               width: MediaQuery.of(context).size.width * 0.14)),
         ],
-        onSelectChanged: ((value) => playAudio(episode.url ?? '')));
+        onSelectChanged: ((value) => addToPlaylist(episode)));
   }
 
   @override

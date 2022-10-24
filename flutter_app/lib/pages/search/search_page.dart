@@ -37,20 +37,28 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('dopepod', style: GoogleFonts.orbitron()),
+        iconTheme: IconThemeData(
+          color: Colors.black, //change your color here
+        ),
+        title: Text('dopepod',
+            style: TextStyle(
+              color: Colors.black,
+              fontFamily: GoogleFonts.orbitron().fontFamily,
+              fontSize: 24.0,
+            )),
         centerTitle: true,
         backgroundColor: Color.fromRGBO(0, 191, 165, 1.0),
       ),
       body: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.all(10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(left: 25, right: 25, top: 10),
                 child: TextField(
-                  style: GoogleFonts.exo(),
+                  style: GoogleFonts.exo2(),
                   onChanged: (val) {
                     searchResults.clear();
                     searchDjango(val);
@@ -77,10 +85,11 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(
+                      left: 25, right: 25, top: 10, bottom: 10),
                   child: Text(
                     '$resultCount results',
-                    style: GoogleFonts.exo(),
+                    style: GoogleFonts.exo2(),
                   )),
               Expanded(
                   child: Row(
@@ -91,10 +100,11 @@ class _SearchPageState extends State<SearchPage> {
                           const SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 200,
                               childAspectRatio: 2 / 3,
-                              crossAxisSpacing: 15,
-                              mainAxisSpacing: 15),
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10),
                       itemCount: searchResults.length,
                       itemBuilder: (BuildContext context, int index) {
+                        if (index % 2 != 0) {}
                         return buildPodcastTile(searchResults[index], context);
                       },
                     ),
@@ -110,81 +120,80 @@ class _SearchPageState extends State<SearchPage> {
 Widget buildPodcastTile(Podcast podcast, BuildContext context) {
   return Stack(children: <Widget>[
     Positioned.fill(
-        bottom: 0.0,
         child: Padding(
             padding: EdgeInsets.all(5.0),
-              child: GridTile(
-                  header: Container(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image(
-                          fit: BoxFit.contain,
-                          image: NetworkImage(
-                              'https://${podcast.artworkUrl}/600x600bb.jpg')
-
+            child: GridTile(
+                header: Container(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image(
+                        fit: BoxFit.contain,
+                        image: NetworkImage(
+                            'https://${podcast.artworkUrl}/200x200bb.jpg')),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.4),
+                        spreadRadius: 3,
+                        blurRadius: 5,
+                        offset: Offset(0, 3), // changes position of shadow
                       ),
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: Offset(0, 3), // changes position of shadow
-                        ),
-                      ],
+                    ],
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(top: 190),
+                  child: RichText(
+                    maxLines: 2,
+                    text: TextSpan(
+                      text: podcast.title,
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: GoogleFonts.exo2().fontFamily,
+                          color: Colors.black,
+                          overflow: TextOverflow.fade),
                     ),
                   ),
-                  child: Padding(
-                      padding: EdgeInsets.only(top: 190),
-                      child: RichText(
-                        maxLines: 2,
-                        text: TextSpan(
-                          text: podcast.title ?? '',
-                          style: TextStyle(
-                              fontSize: 10.0,
+                ),
+                footer: RichText(
+                    maxLines: 2,
+                    text: TextSpan(
+                        text: 'By: ',
+                        style: TextStyle(
+                            fontFamily: GoogleFonts.exo2().fontFamily,
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: podcast.artist ?? '',
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.exo2().fontFamily,
                               fontWeight: FontWeight.bold,
-                              fontFamily: GoogleFonts.exo().fontFamily,
-                              color: Colors.black,
-                              overflow: TextOverflow.fade),
-                        ),
-                      ),
-                  ),
-                  footer: RichText(
-                      maxLines: 2,
-                      text: TextSpan(
-                          text: 'By: ',
-                          style: TextStyle(
-                              fontFamily: GoogleFonts.exo().fontFamily,
-                              fontSize: 12.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                          children: [
-                            TextSpan(
-                              text: podcast.artist ?? '',
-                              style: TextStyle(
-                                fontFamily: GoogleFonts.exo().fontFamily,
-                                fontSize: 10.0,
-                              ),
-                            )
-                          ]))))),
+                              fontSize: 14.0,
+                            ),
+                          )
+                        ]))))),
     Positioned.fill(
-        child: Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(4.0),
-                  splashColor: Colors.grey.withOpacity(0.2),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PodcastPage(podcast: podcast),
-                        ));
-                  },
-                )))),
+        child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              splashColor: Colors.grey.withOpacity(0.2),
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PodcastPage(podcast: podcast),
+                    ));
+              },
+            ))),
   ]);
 }

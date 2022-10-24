@@ -72,7 +72,7 @@ https://lincolnloop.com/blog/django-logging-right-way/
 
 ## Celery
 https://medium.com/swlh/python-developers-celery-is-a-must-learn-technology-heres-how-to-get-started-578f5d63fab3  
-https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html
+https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html  
 https://docs.celeryproject.org/en/stable/userguide/daemonizing.html#daemonizing
 
 ## Let's Encrypt
@@ -82,11 +82,12 @@ https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-
 https://www.django-rest-framework.org/tutorial/quickstart/
 
 ## Flutter
-https://flutter.dev/docs/get-started/install
-https://flutter.dev/docs/cookbook/networking/fetch-data
+https://flutter.dev/docs/get-started/install  
+https://flutter.dev/docs/cookbook/networking/fetch-data  
+https://suragch.medium.com/background-audio-in-flutter-with-audio-service-and-just-audio-3cce17b4a7d  
 
 ## Dockerizing
-https://soshace.com/dockerizing-django-with-postgres-redis-and-celery/
-https://github.com/chrisk314/django-celery-docker-example
-https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
-https://medium.com/swlh/django-deployed-docker-compose-1446909a0df9
+https://soshace.com/dockerizing-django-with-postgres-redis-and-celery/  
+https://github.com/chrisk314/django-celery-docker-example  
+https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/  
+https://medium.com/swlh/django-deployed-docker-compose-1446909a0df9  
