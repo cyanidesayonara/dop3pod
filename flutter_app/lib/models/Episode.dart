@@ -1,4 +1,5 @@
 class Episode {
+  final String id;
   final String? title;
   final String? pubDate;
   final String? description;
@@ -8,6 +9,7 @@ class Episode {
   final String? size;
 
   Episode({
+    required this.id,
     required this.title,
     required this.pubDate,
     required this.description,
@@ -19,6 +21,7 @@ class Episode {
 
   factory Episode.fromJson(Map<String, dynamic> json) {
     return Episode(
+      id: json['id'].toString(),
       title: json['title'],
       pubDate: json['pub_date'],
       description: json['description'],

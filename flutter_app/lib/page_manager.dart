@@ -148,7 +148,7 @@ class PageManager {
 
   Future<void> add(Episode episode, Podcast podcast) async {
     final mediaItem = MediaItem(
-      id: episode.url ?? '',
+      id: episode.id,
       title: episode.title ?? '',
       artist: podcast.artist,
       artUri: Uri.tryParse('https://${podcast.artworkUrl}/200x200bb.jpg'),
