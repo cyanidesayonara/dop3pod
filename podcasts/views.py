@@ -23,6 +23,7 @@ class PodcastViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     permission_classes = [permissions.AllowAny]
     pagination_class = StandardResultsSetPagination
+    ordering_fields = ['view_count', 'title', 'discriminate']
 
     @staticmethod
     @action(url_path='scrape', detail=False)
@@ -42,6 +43,8 @@ class PodcastViewSet(viewsets.ReadOnlyModelViewSet):
     @action(url_path='episodes', detail=True, serializer_class=EpisodeSerializer)
     def get_episodes(request, pk=None):
         podcast = get_object_or_404(Podcast, pk=pk)
+        podcast.view_count = podcast.view_count + 1
+        podcast.save(update_fields=("view_count", ))
         episodes = get_episodes(podcast)
         serializer = EpisodeSerializer(episodes, many=True, context={'request': request})
         return Response(serializer.data)

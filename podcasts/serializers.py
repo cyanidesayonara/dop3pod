@@ -19,7 +19,8 @@ class PodcastSerializer(serializers.HyperlinkedModelSerializer):
             'genres',
             'description',
             'copyright_text',
-            'discriminate'
+            'discriminate',
+            'view_count'
         ]
 
 
@@ -37,6 +38,7 @@ class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Episode
         fields = [
+            'id',
             'podcast',
             'pub_date',
             'title',

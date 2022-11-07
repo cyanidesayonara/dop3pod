@@ -77,11 +77,12 @@ class Podcast(models.Model):
     copyright_text = models.CharField(max_length=5000)
     description = models.TextField(max_length=5000)
     discriminate = models.BooleanField(default=False)
+    view_count = models.IntegerField(default=0)
 
     objects = models.Manager()
 
     class Meta:
-        ordering = ['title', 'discriminate']
+        ordering = ['-view_count', 'title', 'discriminate']
         indexes = [models.Index(fields=['artist', 'primary_genre'])]
 
     def __str__(self):
@@ -134,8 +135,9 @@ def fetch_episodes(podcast):
             logger.error("can\'t find items for %s", feed_url)
             items = []
 
-        for item in items:
+        for index, item in enumerate(items):
             episode = Episode(
+                id=index,
                 podcast=podcast,
                 title=get_title(item, feed_url),
                 pub_date=get_pub_date(item, feed_url),
