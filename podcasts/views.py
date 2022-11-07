@@ -23,6 +23,13 @@ class PodcastViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     permission_classes = [permissions.AllowAny]
     pagination_class = StandardResultsSetPagination
+    ordering_fields = ['view_count', 'title', 'discriminate']
+
+    def retrieve(self, request, *args, **kwargs):
+        obj = self.get_object()
+        obj.view_count = obj.view_count + 1
+        obj.save(update_fields=("view_count", ))
+        return super().retrieve(request, *args, **kwargs)
 
     @staticmethod
     @action(url_path='scrape', detail=False)

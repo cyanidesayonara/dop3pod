@@ -6,6 +6,7 @@ from podcasts.models import Podcast, Genre, Episode
 @admin.register(Podcast)
 class PodcastAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'title',
         'artist',
         'pod_id',
@@ -15,11 +16,13 @@ class PodcastAdmin(admin.ModelAdmin):
         'country',
         'explicit',
         'primary_genre',
-        'copyright_text',
         'description',
-        'discriminate'
+        'copyright_text',
+        'discriminate',
+        'view_count'
     )
     fields = (
+        'id',
         'title',
         'artist',
         'pod_id',
@@ -29,9 +32,10 @@ class PodcastAdmin(admin.ModelAdmin):
         'country',
         'explicit',
         'primary_genre',
-        'copyright_text',
         'description',
-        'discriminate'
+        'copyright_text',
+        'discriminate',
+        'view_count'
     )
 
 

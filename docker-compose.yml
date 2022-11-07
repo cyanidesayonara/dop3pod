@@ -5,8 +5,7 @@ services:
     image: python:3-alpine
     command: >
       sh -c "python manage.py collectstatic --noinput &&
-             sleep 5 &&
-             python manage.py makemigrations &&
+             sleep 10 &&
              python manage.py migrate &&
              gunicorn --workers=2 dop3pod.wsgi -b 0.0.0.0:8000"
     env_file:
