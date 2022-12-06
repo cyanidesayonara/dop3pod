@@ -1,6 +1,15 @@
 from rest_framework import serializers
-from podcasts.models import Podcast, Genre, Episode
+from podcasts.models import Podcast, Genre, Episode, User
 
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'bio'
+        )
 
 class PodcastSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

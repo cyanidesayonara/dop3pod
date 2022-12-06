@@ -1,7 +1,19 @@
 from django.contrib import admin
+from podcasts.models import Podcast, Genre, Episode, User
 
-from podcasts.models import Podcast, Genre, Episode
 
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'username',
+        'bio'
+    )
+    fields = (
+        'id',
+        'username',
+        'bio'
+    )
 
 @admin.register(Podcast)
 class PodcastAdmin(admin.ModelAdmin):

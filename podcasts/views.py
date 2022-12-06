@@ -4,9 +4,12 @@ from rest_framework import filters, viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from django.shortcuts import render, get_object_or_404
-from .models import Podcast, Genre, Episode, get_episodes
-from .serializers import PodcastSerializer, GenreSerializer, EpisodeSerializer
+from .models import Podcast, Genre, Episode, get_episodes, User
+from .serializers import PodcastSerializer, GenreSerializer, EpisodeSerializer, UserSerializer
 from .tasks import scrape_podcasts, stop_scraping
 
 logger = logging.getLogger(__name__)
@@ -14,6 +17,27 @@ logger = logging.getLogger(__name__)
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class UserLogIn(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token = Token.objects.get(user=user)
+        return Response({
+            'token': token.key,
+            'id': user.pk,
+            'username': user.username
+        })
 
 
 class PodcastViewSet(viewsets.ReadOnlyModelViewSet):

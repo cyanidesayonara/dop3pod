@@ -23,33 +23,9 @@ for searching and playing thousands of free podcasts found online
 #### Install Docker & Docker Compose  
 https://docs.docker.com/compose/
 
-#### Create a file for environment variables  
+#### Create a file for environment variables by copying the .env.example file and renaming it .env
 ```
-touch .env
-```
-
-#### Add the following default settings to the created .env file
-```
-SECRET_KEY=123
-DEBUG=True
-ALLOWED_HOSTS='localhost 10.0.2.2'
-DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
-LOGGING_LEVEL=INFO
-CELERY_BROKER='redis://redis:6379/0'
-REDIS_URL='redis://redis:6379'
-
-SQL_ENGINE=django.db.backends.postgresql
-SQL_DATABASE=postgres
-SQL_USER=postgres
-SQL_PASSWORD=postgres
-SQL_HOST=postgres
-SQL_PORT=5432
-
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-
-NGINX_PORT=80
+cp .env.example .env
 ```
 
 #### Run the Docker Compose startup script:
@@ -63,6 +39,10 @@ docker-compose up --build
 * PostgreSQL database (postgres)
 * Redis cache & message broker (redis)
 * Celery worker (celery_worker_1 & celery_worker_2)
+
+#### The web server will respond to http requests to http://localhost:8000
+A different Nginx port number can be defined in the above ```.env``` file along
+with many other settings
 
 ## App
 #### Install Flutter, Dart & Android Studio
@@ -116,3 +96,9 @@ https://soshace.com/dockerizing-django-with-postgres-redis-and-celery/
 https://github.com/chrisk314/django-celery-docker-example  
 https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/  
 https://medium.com/swlh/django-deployed-docker-compose-1446909a0df9  
+
+### Auth
+https://www.django-rest-framework.org/api-guide/authentication/
+https://mattermost.com/blog/user-authentication-with-the-django-rest-framework-and-angular/
+https://simpleisbetterthancomplex.com/tutorial/2018/11/22/how-to-implement-token-authentication-using-django-rest-framework.html
+ 

@@ -1,13 +1,18 @@
-from datetime import timedelta
 import re
 import logging
 import requests
+from datetime import timedelta
+from django.conf import settings
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from rest_framework.authtoken.models import Token
 from dateutil.parser import parse
 from lxml import html as lxml_html
 from lxml.etree import XML, ParserError, XMLSyntaxError
 from django.db import models
 from django.core.cache import cache
 from django.utils.html import strip_tags
+from django.contrib.auth.models import AbstractUser
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +43,18 @@ def format_bytes(bts):
         num += 1
         bts /= power ** num
     return "{0:4.1f}{1}".format(bts, suffixes[num])
+
+
+class User(AbstractUser):
+    bio = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.username
+
+    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+    def create_auth_token(sender, instance=None, created=False, **kwargs):
+        if created:
+            Token.objects.create(user=instance)
 
 
 class GenreManager(models.Manager):
