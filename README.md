@@ -14,7 +14,6 @@ for searching and playing thousands of free podcasts found online
 * Docker
 * Celery
 * Redis
-* Nginx
 * Dart
 * Flutter
 
@@ -48,8 +47,6 @@ SQL_PORT=5432
 POSTGRES_DB=postgres
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-
-NGINX_PORT=80
 ```
 
 #### Run the Docker Compose startup script:
@@ -59,7 +56,6 @@ docker-compose up --build
 
 #### This will start the following services:
 * Django REST Framework API (web)
-* Nginx web server (nginx)
 * PostgreSQL database (postgres)
 * Redis cache & message broker (redis)
 * Celery worker (celery_worker_1 & celery_worker_2)
@@ -99,9 +95,6 @@ https://lincolnloop.com/blog/django-logging-right-way/
 https://medium.com/swlh/python-developers-celery-is-a-must-learn-technology-heres-how-to-get-started-578f5d63fab3  
 https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html  
 https://docs.celeryproject.org/en/stable/userguide/daemonizing.html#daemonizing
-
-### Let's Encrypt
-https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-20-04
 
 ### Django REST Framework
 https://www.django-rest-framework.org/tutorial/quickstart/

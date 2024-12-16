@@ -6,8 +6,8 @@ ENV PYTHONUNBUFFERED 1
 RUN apk update && apk add libpq
 RUN apk update && apk add --virtual .build-deps gcc python3-dev musl-dev postgresql-dev libffi-dev
 
-RUN mkdir -p /dopepod
-WORKDIR /dopepod
+RUN mkdir -p /app
+WORKDIR /app
 COPY . .
 
 RUN pip install --upgrade pip
