@@ -1,6 +1,6 @@
 import type { Episode, Show } from '../../tools/catalog/types.ts';
 export type { Episode, Show };
-export type ShowCard = Pick<Show, 'id' | 'category' | 'title' | 'author' | 'description' | 'image' | 'cover' | 'stale'> & { latest: string | null };
+export type ShowCard = Pick<Show, 'id' | 'category' | 'language' | 'title' | 'author' | 'description' | 'image' | 'cover' | 'stale'> & { latest: string | null };
 export type Catalog = { generated: string; shows: ShowCard[] };
 
 async function load<T>(file: string): Promise<T> {

@@ -4,6 +4,7 @@
   import PlayerBar from './components/PlayerBar.svelte';
   import ShowPage from './components/ShowPage.svelte';
   import { player } from './lib/player.svelte.ts';
+  import { advance, removeFromQueue } from './lib/queue.ts';
   import { applyTheme, save, saved } from './lib/saved.svelte.ts';
 
   type Route = { name: 'home' } | { name: 'show'; id: string; episode: string };
@@ -21,6 +22,9 @@
     window.scrollTo(0, 0);
     main.focus({ preventScroll: true });
   }
+
+  player.advance = () => void advance();
+  $effect(() => { if (player.episode) removeFromQueue(player.episode.id); });
 
   applyTheme();
   const order = { auto: 'light', light: 'dark', dark: 'auto' } as const;

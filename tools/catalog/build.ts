@@ -36,7 +36,7 @@ export async function loadShow(src: ShowSource, prev: Show | null, get: Fetcher 
   if (prev?.etag) headers['If-None-Match'] = prev.etag;
   if (prev?.modified) headers['If-Modified-Since'] = prev.modified;
   const res = await get(src.feed, { headers, redirect: 'follow', signal: AbortSignal.timeout(60_000) });
-  if (res.status === 304 && prev) return { ...prev, category: src.category, title: src.title, stale: false };
+  if (res.status === 304 && prev) return { ...prev, category: src.category, language: src.language, title: src.title, stale: false };
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   if (res.url && !res.url.startsWith('https:')) throw new Error('feed was not served over https');
   const feed = parseFeed(await readCapped(res));
@@ -51,7 +51,7 @@ export async function loadShow(src: ShowSource, prev: Show | null, get: Fetcher 
     if (episodes.length === MAX_EPISODES) break;
   }
   return {
-    id: src.id, category: src.category, title: src.title, author: feed.author, description: feed.description,
+    id: src.id, category: src.category, language: src.language, title: src.title, author: feed.author, description: feed.description,
     link: feed.link, image: feed.image, cover: '', coverOf: '', updated: new Date().toISOString(), stale: false,
     etag: res.headers.get('etag') ?? '', modified: res.headers.get('last-modified') ?? '', episodes,
   };
@@ -95,7 +95,7 @@ export async function buildCatalog(
       } catch (e) {
         failed.push(src.id);
         log(`FAILED ${src.id}: ${(e as Error).message}${prev ? ' (kept the last good episodes)' : ' (left out)'}`);
-        if (prev) shows[i] = { ...prev, category: src.category, title: src.title, stale: true };
+        if (prev) shows[i] = { ...prev, category: src.category, language: src.language, title: src.title, stale: true };
       }
     }
   };
@@ -139,8 +139,8 @@ async function main() {
   await Promise.all(shows.map((s) => put(`shows/${s.id}.json`, s)));
   await put('catalog.json', {
     generated,
-    shows: shows.map(({ id, category, title, author, description, image, cover, stale, episodes }) => ({
-      id, category, title, author, description: description.slice(0, 200), image, cover, stale, latest: episodes[0]?.date ?? null,
+    shows: shows.map(({ id, category, language, title, author, description, image, cover, stale, episodes }) => ({
+      id, category, language, title, author, description: description.slice(0, 200), image, cover, stale, latest: episodes[0]?.date ?? null,
     })),
   });
   await put('booth.json', {

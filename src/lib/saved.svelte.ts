@@ -1,10 +1,11 @@
 // Everything the app remembers, in this browser only. Storage can be blocked or full, so nothing depends on it.
 export type Progress = { t: number; d: number; at: number; show: string; title: string; done: boolean };
+export type Queued = { id: string; show: string; title: string; showTitle: string };
 export type Theme = 'auto' | 'light' | 'dark';
-type Saved = { favorites: string[]; progress: Record<string, Progress>; rate: number; volume: number; theme: Theme };
+type Saved = { favorites: string[]; queue: Queued[]; progress: Record<string, Progress>; rate: number; volume: number; theme: Theme };
 
 const KEY = 'dopepod';
-const initial: Saved = { favorites: [], progress: {}, rate: 1, volume: 1, theme: 'auto' };
+const initial: Saved = { favorites: [], queue: [], progress: {}, rate: 1, volume: 1, theme: 'auto' };
 
 function read(): Saved {
   try {
@@ -16,6 +17,10 @@ function read(): Saved {
         progress[k] = { t: p.t, d: p.d, at: p.at, show: p.show, title: p.title, done: !!p.done };
     return {
       favorites: Array.isArray(v.favorites) ? v.favorites.filter((x: unknown) => typeof x === 'string') : [],
+      queue: (Array.isArray(v.queue) ? (v.queue as Queued[]) : [])
+        .filter((q) => q && [q.id, q.show, q.title, q.showTitle].every((x) => typeof x === 'string'))
+        .filter((q, i, a) => a.findIndex((o) => o.id === q.id) === i)
+        .map((q) => ({ id: q.id, show: q.show, title: q.title, showTitle: q.showTitle })),
       progress, rate: num(v.rate, 0.5, 3, 1), volume: num(v.volume, 0, 1, 1),
       theme: ['auto', 'light', 'dark'].includes(v.theme) ? v.theme : 'auto',
     };
@@ -25,6 +30,9 @@ function read(): Saved {
 }
 
 export const saved = $state<Saved>(read());
+
+// Another tab saved: take its state, so this tab's next save doesn't undo it.
+addEventListener('storage', (e) => { if (e.key === KEY || e.key === null) { Object.assign(saved, read()); applyTheme(); } });
 
 export function save() {
   const all = Object.entries(saved.progress);
