@@ -9,7 +9,6 @@
   {"id": "python-bytes", "category": "Technology", "title": "Python Bytes", "feed": "https://pythonbytes.fm/episodes/rss"},
   {"id": "accidental-tech-podcast", "category": "Technology", "title": "Accidental Tech Podcast", "feed": "https://atp.fm/rss"},
   {"id": "lex-fridman", "category": "Technology", "title": "Lex Fridman", "feed": "https://lexfridman.com/feed/podcast/"},
-  {"id": "latent-space", "category": "Technology", "title": "Latent Space", "feed": "https://api.substack.com/feed/podcast/1084089.rss"},
   {"id": "embedded", "category": "Technology", "title": "Embedded", "feed": "https://embedded.fm/episodes?format=rss"},
   {"id": "the-amp-hour", "category": "Technology", "title": "The Amp Hour", "feed": "https://theamphour.com/feed/podcast/"},
   {"id": "oxide-and-friends", "category": "Technology", "title": "Oxide and Friends", "feed": "https://feeds.transistor.fm/oxide-and-friends"},
