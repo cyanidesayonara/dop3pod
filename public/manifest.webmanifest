@@ -1,0 +1,5 @@
+{
+  "name": "dopepod", "short_name": "dopepod", "start_url": "./", "scope": "./", "display": "standalone",
+  "background_color": "#242424", "theme_color": "#00bfa5",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

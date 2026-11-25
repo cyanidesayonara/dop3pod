@@ -1,0 +1,58 @@
+name: Site
+
+# Tests, reads every feed, builds the site and publishes it to
+# https://cyanidesayonara.github.io/dop3pod/. Runs daily so episode lists stay
+# fresh. Pull requests do everything except publish. If more than 20% of the
+# feeds fail, the build stops and the site keeps its last good version.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.5
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run catalog -- --prev https://cyanidesayonara.github.io/dop3pod/data
+      - run: npm run build
+      - if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: dist
+          name: github-pages-${{ github.run_attempt }}
+
+  deploy:
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    # one deploy at a time, and never cancel one halfway
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
