@@ -2,7 +2,8 @@
 
 A lightweight podcast player that runs entirely in your browser. No account, no server, nothing to install.
 
-Browse a hand-picked catalog, play and skip, change speed, keep favorites and pick up where you left off.
+Browse a hand-picked catalog in four languages, queue episodes, change speed, set a sleep timer, keep favorites and
+pick up where you left off.
 Everything it remembers stays in your browser.
 
 ## How it works

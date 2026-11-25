@@ -6,7 +6,7 @@ import type { Show } from '../types.ts';
 
 const png = (w: number, h: number) => sharp({ create: { width: w, height: h, channels: 3, background: '#00bfa5' } }).png().toBuffer();
 const show = (x: Partial<Show> = {}): Show => ({
-  id: 'a', category: 'C', title: 'A', author: '', description: '', link: '', image: 'https://a.example/i.png',
+  id: 'a', category: 'C', language: 'en', title: 'A', author: '', description: '', link: '', image: 'https://a.example/i.png',
   cover: '', coverOf: '', updated: '', stale: false, etag: '', modified: '', episodes: [], ...x,
 });
 const body = (b: Buffer | string) => async () => new Response(b as BodyInit);

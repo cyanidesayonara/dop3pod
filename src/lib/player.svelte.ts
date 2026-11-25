@@ -12,12 +12,19 @@ class Player {
   time = $state(0);
   duration = $state(0);
   error = $state('');
+  /** '' is off, 'end' stops after this episode, otherwise minutes. */
+  sleep = $state('');
+  sleepLeft = $state(0);
+  /** Set by the app: plays whatever follows. */
+  advance: () => void = () => {};
   /** Newer episode of the same show: what plays next. */
   next = $derived(this.neighbor(-1));
   previous = $derived(this.neighbor(1));
 
   #resumeAt = 0;
   #lastSave = 0;
+  #sleepAt = 0;
+  #sleepTick: ReturnType<typeof setInterval> | undefined;
 
   constructor() {
     audio.volume = saved.volume;
@@ -39,7 +46,11 @@ class Player {
     on('waiting', () => (this.waiting = true));
     on('playing', () => { this.waiting = false; this.error = ''; });
     on('canplay', () => (this.waiting = false));
-    on('ended', () => { this.remember(true); if (this.next && this.show) this.play(this.show, this.next); });
+    on('ended', () => {
+      this.remember(true);
+      if (this.sleep === 'end') this.setSleep('');
+      else this.advance();
+    });
     on('error', () => {
       if (!this.episode || !audio.getAttribute('src')) return;
       this.waiting = this.playing = false;
@@ -56,7 +67,7 @@ class Player {
       set('seekbackward', (d) => this.skip(-(d.seekOffset ?? 15)));
       set('seekforward', (d) => this.skip(d.seekOffset ?? 30));
       set('seekto', (d) => { if (d.seekTime !== undefined) this.seek(d.seekTime); });
-      set('nexttrack', () => { if (this.next && this.show) this.play(this.show, this.next); });
+      set('nexttrack', () => this.advance());
       set('previoustrack', () => { if (this.previous && this.show) this.play(this.show, this.previous); });
     }
   }
@@ -107,6 +118,22 @@ class Player {
     if (audio.readyState === 0) this.#resumeAt = to; else audio.currentTime = to;
   }
   skip(s: number) { this.seek(this.time + s); }
+
+  setSleep(v: string) {
+    clearInterval(this.#sleepTick);
+    this.sleep = v;
+    const min = Number(v);
+    if (!v || !min) return;
+    this.#sleepAt = Date.now() + min * 60_000;
+    this.sleepLeft = min;
+    // A clock time, not a countdown: background tabs run timers late.
+    this.#sleepTick = setInterval(() => {
+      this.sleepLeft = Math.max(1, Math.ceil((this.#sleepAt - Date.now()) / 60_000));
+      if (Date.now() < this.#sleepAt) return;
+      this.setSleep('');
+      audio.pause();
+    }, 1000);
+  }
 
   setRate(r: number) { saved.rate = r; audio.playbackRate = r; save(); }
   setVolume(v: number) { saved.volume = v; audio.volume = v; save(); }

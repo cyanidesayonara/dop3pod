@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { artwork, day, loadShow, minutes, type Episode, type Show } from '../lib/data.ts';
+  import { inQueue, toggleQueue } from '../lib/queue.ts';
   import { player } from '../lib/player.svelte.ts';
   import { saved, toggleFavorite } from '../lib/saved.svelte.ts';
   import Cover from './Cover.svelte';
@@ -64,9 +65,9 @@
   <section class="panel show-head">
     <Cover title={s.title} src={artwork(s)} size={160} />
     <div class="grow">
-      <h1>{s.title}</h1>
+      <h1 lang={s.language}>{s.title}</h1>
       {#if s.author && s.author !== s.title}<p class="meta">by {s.author}</p>{/if}
-      <p>{s.description}</p>
+      <p lang={s.language}>{s.description}</p>
       <p class="actions">
         <button class="btn" aria-pressed={favorite} onclick={() => toggleFavorite(id)}>{favorite ? '★ Favorite' : '☆ Add to favorites'}</button>
         {#if s.link}<a class="btn ghost" href={s.link} target="_blank" rel="noopener noreferrer">Show website</a>{/if}
@@ -90,12 +91,13 @@
             </svg>
           </button>
           <div class="grow">
-            <strong>{e.title}</strong>
+            <strong lang={s.language}>{e.title}</strong>
             <p class="meta">{[day(e.date), status(e) || minutes(e.duration)].filter(Boolean).join(' · ')}</p>
             {#if e.summary}
-              <details><summary>About<span class="sr"> {e.title}</span></summary><p>{e.summary}</p></details>
+              <details><summary>About<span class="sr"> {e.title}</span></summary><p lang={s.language}>{e.summary}</p></details>
             {/if}
           </div>
+          <button class="link" aria-pressed={inQueue(e.id)} aria-label="Play {e.title} next" disabled={now} onclick={() => toggleQueue(s, e)}>{inQueue(e.id) ? 'Queued' : 'Queue'}</button>
           <button class="link" onclick={() => share(e)} aria-label="Copy link to {e.title}">{copied === e.id ? 'Copied' : 'Link'}</button>
         </li>
       {:else}

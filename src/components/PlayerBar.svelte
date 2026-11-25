@@ -50,6 +50,11 @@
       </div>
       <div class="extras">
         <span class="time">{clock(shown)} / {clock(player.duration)}</span>
+        <select class="sleep" aria-label="Sleep timer" value={player.sleep} onchange={(e) => player.setSleep(e.currentTarget.value)}>
+          <option value="">Sleep: off</option>
+          {#each ['15', '30', '45', '60'] as m (m)}<option value={m}>Sleep: {player.sleep === m ? player.sleepLeft : m} min</option>{/each}
+          <option value="end">Sleep: episode end</option>
+        </select>
         <select aria-label="Speed" value={saved.rate} onchange={(e) => player.setRate(Number(e.currentTarget.value))}>
           {#each RATES as r (r)}<option value={r}>{r}×</option>{/each}
         </select>

@@ -4,7 +4,7 @@ import { buildCatalog, loadShow, readCapped, type Show, type ShowSource } from '
 
 const xml = (n = 1) => `<rss><channel><title>T</title>${Array.from({ length: n }, (_, i) =>
   `<item><title>E${i}</title><guid>g${i}</guid><enclosure url="https://a.example/${i}.mp3" type="audio/mpeg"/></item>`).join('')}</channel></rss>`;
-const src = (id: string): ShowSource => ({ id, category: 'C', title: id, feed: `https://f.example/${id}` });
+const src = (id: string): ShowSource => ({ id, category: 'C', language: 'en', title: id, feed: `https://f.example/${id}` });
 const ok = async () => new Response(xml(), { headers: { etag: '"1"' } });
 const quiet = () => {};
 
