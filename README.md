@@ -15,6 +15,8 @@ Everything it remembers stays in your browser.
 - **A searchable directory.** Once a month the same Action builds an index of about 27,000 popular, active shows from
   [Podcast Index](https://podcastindex.org)'s public data dump. Opening one reads its feed in the browser when the
   publisher allows it; otherwise its latest episode still plays.
+- **Trending charts.** Once a day the Action asks Podcast Index's API for trending shows, overall and by category and language.
+  The API key is a GitHub Actions secret used only by the Action; the site only receives the finished lists.
 - **Audio comes straight from the publishers.** No audio is copied or re-hosted.
 - **Feeds are untrusted.** [`tools/catalog/rss.ts`](tools/catalog/rss.ts) tolerates broken XML, expands no custom
   entities, accepts only https audio, and reduces every description to plain text.

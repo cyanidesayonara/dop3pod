@@ -18,3 +18,6 @@ export type DirectoryDetail = {
   feed: string; link: string; description: string; episodes: number;
   newest: { audio: string; date: string; duration: number | null } | null;
 };
+
+export type ChartItem = { show: string; title: string; author: string; image: string; language: string };
+export type Charts = { generated: string; lists: { id: string; label: string; items: ChartItem[] }[]; extras: Record<string, DirectoryDetail> };

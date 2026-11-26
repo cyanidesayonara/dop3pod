@@ -1,6 +1,6 @@
 // Shows from the directory: the published details, plus the feed itself when the publisher lets browsers read it.
 import { parseFeed } from '../../tools/catalog/rss.ts';
-import type { DirectoryDetail, DirectoryIndex, Episode, Show } from '../../tools/catalog/types.ts';
+import type { Charts, DirectoryDetail, DirectoryIndex, Episode, Show } from '../../tools/catalog/types.ts';
 
 const SHARDS = 256;
 const MAX_FEED = 15_000_000;
@@ -13,6 +13,13 @@ async function json<T>(file: string): Promise<T> {
 
 let index: Promise<DirectoryIndex> | undefined;
 export const loadDirectory = () => (index ??= json<DirectoryIndex>('index.json').catch((e) => { index = undefined; throw e; }));
+
+let charts: Promise<Charts> | undefined;
+export const loadCharts = () => (charts ??= fetch('./data/charts.json').then((r) => {
+  if (r.status === 404) return { generated: new Date().toISOString(), lists: [], extras: {} };
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}).catch((e) => { charts = undefined; throw e; }));
 
 const shards = new Map<number, Promise<Record<string, DirectoryDetail>>>();
 function shard(n: number) {
@@ -56,7 +63,7 @@ async function readFeed(url: string): Promise<string | null> {
 
 export async function loadDirectoryShow(id: string): Promise<Show> {
   const pid = Number(id.slice(2));
-  const d = (await shard(pid % SHARDS))[pid];
+  const d = (await shard(pid % SHARDS))[pid] ?? (await loadCharts().catch(() => null))?.extras[pid];
   if (!d) throw new Error('unknown show');
   const show: Show = {
     id, category: d.category, language: d.language, title: d.title, author: d.author, description: d.description, link: d.link,

@@ -93,6 +93,9 @@ input[type='search']::placeholder { color: #666; opacity: 1; }
 .ranked .resume { padding-left: 0; }
 .ranked a.grow { color: inherit; text-decoration: none; padding: 0.8rem 0; }
 .ranked a.grow:hover strong { text-decoration: underline; }
+.charts .card { padding-left: 0; }
+.chip[aria-current='page'] { background: var(--teal); color: var(--on-teal); }
+.chips + .chips { padding-top: 0; }
 .dot { flex: none; width: 2.2rem; height: 2.2rem; display: grid; place-items: center; border: 2px solid var(--line); border-radius: 50%; font-weight: 600; font-variant-numeric: tabular-nums; }
 .more { display: flex; justify-content: center; padding: 1rem; border-top: 1px solid var(--hair); }
 .btn.on-teal { border-color: #000; color: #000; }
@@ -144,6 +147,7 @@ input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius
   .top { padding: 0.3rem 0.5rem; }
   .top-links a { padding: 0.55rem 0.4rem; font-size: 0.9rem; }
   .top-links a:first-child { display: none; }
+  .top-links { gap: 0; }
   .wordmark { font-size: 1.35rem; }
   .hero { grid-template-columns: 1fr; padding: 1.2rem 1rem; }
   .pitch { grid-row: 1; }

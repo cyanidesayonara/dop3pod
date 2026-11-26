@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
+  import ChartsPage from './components/ChartsPage.svelte';
   import History from './components/History.svelte';
   import Home from './components/Home.svelte';
   import PlayerBar from './components/PlayerBar.svelte';
@@ -8,10 +9,11 @@
   import { advance, removeFromQueue } from './lib/queue.ts';
   import { applyTheme, save, saved } from './lib/saved.svelte.ts';
 
-  type Route = { name: 'home' } | { name: 'played' } | { name: 'show'; id: string; episode: string };
+  type Route = { name: 'home' } | { name: 'played' } | { name: 'charts'; list: string } | { name: 'show'; id: string; episode: string };
   function parse(): Route {
     const [, kind, id = '', episode = ''] = location.hash.replace(/^#/, '').split('/');
     if (kind === 'played') return { name: 'played' };
+    if (kind === 'charts') return { name: 'charts', list: id };
     return kind === 'show' && id ? { name: 'show', id, episode } : { name: 'home' };
   }
 
@@ -58,6 +60,7 @@
 <header class="top">
   <nav class="top-links" aria-label="Main">
     <a href="#/" aria-current={route.name === 'home' ? 'page' : undefined}>Browse</a>
+    <a href="#/charts" aria-current={route.name === 'charts' ? 'page' : undefined}>Charts</a>
     <a href="#/played" aria-current={route.name === 'played' ? 'page' : undefined}>Last played</a>
   </nav>
   <a class="wordmark" href="#/" aria-label="dopepod home">dopepod</a>
@@ -71,6 +74,8 @@
 <main id="main" tabindex="-1" bind:this={main}>
   {#if route.name === 'show'}
     {#key route.id}<ShowPage id={route.id} linked={route.episode} />{/key}
+  {:else if route.name === 'charts'}
+    <ChartsPage list={route.list} />
   {:else if route.name === 'played'}
     <History />
   {:else}
