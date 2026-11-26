@@ -44,7 +44,7 @@ svg .fill { fill: currentColor; stroke: none; }
 .top :focus-visible { outline-color: #000; }
 .wordmark { grid-column: 2; color: inherit; text-decoration: none; font-size: 1.6rem; font-weight: 500; letter-spacing: 0.02em; }
 .top-links { grid-column: 1; grid-row: 1; display: flex; gap: 0.2rem; }
-.top-links a { color: inherit; text-decoration: none; font-weight: 500; padding: 0.55rem 0.6rem; border-radius: 4px; }
+.top-links a { color: inherit; text-decoration: none; font-weight: 500; padding: 0.55rem 0.6rem; border-radius: 4px; white-space: nowrap; }
 .top-links a:hover { background: #0000001f; }
 .top-links a[aria-current='page'] { text-decoration: underline; text-underline-offset: 0.3em; }
 .theme { grid-column: 3; justify-self: end; }
@@ -144,11 +144,11 @@ input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius
 .volume { width: 6rem; }
 
 @media (max-width: 48rem) {
-  .top { padding: 0.3rem 0.5rem; }
-  .top-links a { padding: 0.55rem 0.4rem; font-size: 0.9rem; }
-  .top-links a:first-child { display: none; }
-  .top-links { gap: 0; }
-  .wordmark { font-size: 1.35rem; }
+  /* the wordmark keeps the centre; the links get a row of their own below it */
+  .top { padding: 0.2rem 0.5rem 0; row-gap: 0; }
+  .top-links { grid-column: 1 / -1; grid-row: 2; justify-content: center; gap: 0.5rem; }
+  .top-links a { padding: 0.45rem 0.6rem; font-size: 0.9rem; }
+  .wordmark { font-size: 1.5rem; }
   .hero { grid-template-columns: 1fr; padding: 1.2rem 1rem; }
   .pitch { grid-row: 1; }
   .dial { grid-template-columns: auto auto auto; align-items: center; justify-content: center; gap: 1rem; }
