@@ -11,6 +11,7 @@
   let failed = $state(false);
   let query = $state('');
   let copied = $state('');
+  let shown = $state(20);
 
   async function load() {
     failed = false;
@@ -31,6 +32,9 @@
     const q = query.trim().toLowerCase();
     return (show?.episodes ?? []).filter((e) => !q || `${e.title} ${e.summary}`.toLowerCase().includes(q));
   });
+
+  $effect(() => { void query; shown = 20; });
+  const linkedAt = $derived(episodes.findIndex((e) => e.id === linked));
 
   function status(e: Episode) {
     const p = saved.progress[e.id];
@@ -82,7 +86,7 @@
       <input type="search" placeholder="Filter episodes" aria-label="Filter episodes" bind:value={query} />
     </div>
     <ul>
-      {#each episodes as e (e.id)}
+      {#each episodes.slice(0, Math.max(shown, linkedAt + 1)) as e (e.id)}
         {@const now = player.isCurrent(e.id)}
         <li class="episode" class:now class:linked={e.id === linked} id="e-{e.id}">
           <button class="round" onclick={() => player.play(s, e)} aria-label="{now && player.playing ? 'Pause' : 'Play'} {e.title}">
@@ -104,6 +108,9 @@
         <li class="notice" role="status">No episodes match “{query}”.</li>
       {/each}
     </ul>
+    {#if episodes.length > Math.max(shown, linkedAt + 1)}
+      <p class="more"><button class="btn" onclick={() => (shown += 20)}>Show more episodes ({episodes.length - Math.max(shown, linkedAt + 1)} left)</button></p>
+    {/if}
   </section>
 {/if}
 <span class="sr" role="status">{copied ? 'Link copied' : ''}</span>
