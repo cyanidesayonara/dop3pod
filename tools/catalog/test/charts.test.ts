@@ -28,16 +28,14 @@ test('fetchList asks for the right list and sorts by trend score', async () => {
   await assert.rejects(fetchList(LISTS[0], 'k', 's', async () => Response.json({ status: 'false' })), /no feeds/);
 });
 
-test('chart rows link to featured shows, directory shows, or a new detail', () => {
-  const c = buildCharts(new Map([['all', [feed(1), feed(2, { url: 'https://featured.example/rss' }), feed(3), feed(4, { url: 'javascript:x' })]]]),
-    new Map([['https://featured.example/rss', 'radiolab']]), new Set([3]), 'now');
-  assert.deepEqual(c.lists[0].items.map((i) => i.show), ['d-1', 'radiolab', 'd-3']);
-  assert.deepEqual(Object.keys(c.extras), ['1']);
-  assert.equal(c.extras[1].description, 'About');
-  assert.equal(c.extras[1].category, 'Technology');
+test('only established shows are kept, without repeats', () => {
+  const c = buildCharts(new Map([['all', [feed(1), feed(2, { url: 'https://featured.example/rss' }), feed(3), feed(5, { title: 'Show 3' }), feed(4, { url: 'javascript:x' })]]]),
+    new Map([['https://featured.example/rss', 'radiolab']]), new Set([3, 4, 5]), 'now');
+  assert.deepEqual(c.lists[0].items.map((i) => i.show), ['radiolab', 'd-3']);
+  assert.deepEqual(c.extras, {});
 });
 
 test('lists with no answer are left out', () => {
-  const c = buildCharts(new Map([['all', [feed(1)]], ['c-science', []]]), new Map(), new Set(), 'now');
+  const c = buildCharts(new Map([['all', [feed(1)]], ['c-science', []]]), new Map(), new Set([1]), 'now');
   assert.deepEqual(c.lists.map((l) => l.id), ['all']);
 });

@@ -8,11 +8,13 @@ import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import type { Fetcher } from './build.ts';
 import { httpsUrl, plain } from './rss.ts';
-import type { Charts, ChartItem, DirectoryDetail, DirectoryIndex, ShowSource } from './types.ts';
+import type { Charts, ChartItem, DirectoryIndex, ShowSource } from './types.ts';
 
 const API = 'https://api.podcastindex.org/api/1.0/podcasts/trending';
 const UA = 'dopepod-catalog/1.0 (+https://github.com/cyanidesayonara/dop3pod)';
 const SIZE = 50;
+// Trending alone favors brand-new shows, so ask for many and keep the ones that are also established.
+const ASK = 1000;
 
 /** Lists to fetch: Podcast Index category names and language codes. */
 export const LISTS: { id: string; label: string; cat?: string; lang?: string }[] = [
@@ -36,7 +38,7 @@ export function authHeaders(key: string, secret: string, now = Math.floor(Date.n
 
 export async function fetchList(list: (typeof LISTS)[number], key: string, secret: string, get: Fetcher = fetch): Promise<Trending[]> {
   const u = new URL(API);
-  u.searchParams.set('max', String(SIZE));
+  u.searchParams.set('max', String(ASK));
   if (list.cat) u.searchParams.set('cat', list.cat);
   if (list.lang) u.searchParams.set('lang', list.lang);
   const r = await get(u.href, { headers: authHeaders(key, secret), signal: AbortSignal.timeout(30_000) });
@@ -46,7 +48,7 @@ export async function fetchList(list: (typeof LISTS)[number], key: string, secre
   return [...body.feeds].sort((a, b) => (b.trendScore ?? 0) - (a.trendScore ?? 0));
 }
 
-/** Turns API answers into the published charts. Featured and directory shows link to their pages; the rest get a small detail. */
+/** Turns API answers into the published charts: established shows only (featured or in the directory), no repeats, top 50. */
 export function buildCharts(
   answers: Map<string, Trending[]>, featured: Map<string, string>, directory: Set<number>, generated: string,
 ): Charts {
@@ -55,20 +57,19 @@ export function buildCharts(
     const feeds = answers.get(list.id);
     if (!feeds?.length) continue;
     const items: ChartItem[] = [];
+    const titles = new Set<string>();
     for (const f of feeds) {
+      if (items.length === SIZE) break;
       const feed = httpsUrl(f.url);
       const title = plain(f.title ?? '', 200);
       if (!feed || !title || !Number.isInteger(f.id)) continue;
+      if (!featured.has(feed) && !directory.has(f.id)) continue;
+      const key = title.toLowerCase();
+      if (titles.has(key)) continue;
+      titles.add(key);
       const image = httpsUrl(f.artwork) || httpsUrl(f.image);
       const show = featured.get(feed) ?? `d-${f.id}`;
       items.push({ show, title, author: plain(f.author ?? '', 120), image, language: (/^[a-z]{2}/i.exec(f.language ?? '')?.[0] ?? '').toLowerCase() });
-      if (!featured.has(feed) && !directory.has(f.id) && !charts.extras[f.id]) {
-        const cats = Object.values(f.categories ?? {});
-        charts.extras[f.id] = {
-          title, author: plain(f.author ?? '', 120), image, language: items.at(-1)!.language, category: cats[0] ?? 'Other', explicit: false,
-          feed, link: '', description: plain(f.description ?? '', 600), episodes: 0, newest: null,
-        } satisfies DirectoryDetail;
-      }
     }
     if (items.length) charts.lists.push({ id: list.id, label: list.label, items });
   }
@@ -116,7 +117,7 @@ async function main() {
   } catch { /* no directory yet: every chart show gets its own detail */ }
   const charts = buildCharts(answers, featured, directory, new Date().toISOString());
   await writeFile(path.join(out, 'charts.json'), JSON.stringify(charts));
-  console.log(`charts: ${charts.lists.length} lists, ${Object.keys(charts.extras).length} shows outside the directory${failed.length ? `; failed: ${failed.join('; ')}` : ''}`);
+  console.log(`charts: ${charts.lists.length} lists, ${charts.lists.map((l) => l.items.length).join('/')} shows${failed.length ? `; failed: ${failed.join('; ')}` : ''}`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
