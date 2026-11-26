@@ -10,8 +10,15 @@ on:
     branches: [master]
   pull_request:
   workflow_dispatch:
+    inputs:
+      rebuild-directory:
+        description: Rebuild the directory from the Podcast Index dump
+        type: boolean
+        default: false
   schedule:
     - cron: "17 4 * * *"
+    # the directory, from Podcast Index's weekly dump, once a month
+    - cron: "41 3 2 * *"
 
 permissions:
   contents: read
@@ -19,7 +26,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-node@v4
@@ -29,6 +36,19 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run catalog -- --prev https://cyanidesayonara.github.io/dop3pod/data
+      - name: Directory
+        env:
+          REBUILD: ${{ github.event.schedule == '41 3 2 * *' || inputs.rebuild-directory }}
+        run: |
+          set -euo pipefail
+          prev=https://cyanidesayonara.github.io/dop3pod/data
+          if [ "$REBUILD" != true ] && curl -sfI "$prev/directory/index.json" >/dev/null; then
+            node tools/catalog/directory.ts --prev "$prev"
+          else
+            curl -sSfL -A "dopepod-catalog/1.0 (+https://github.com/cyanidesayonara/dop3pod)"               https://public.podcastindex.org/podcastindex_feeds.db.tgz | tar -xzf - -C "$RUNNER_TEMP"
+            node tools/catalog/directory.ts --db "$RUNNER_TEMP/podcastindex_feeds.db"
+            rm "$RUNNER_TEMP/podcastindex_feeds.db"
+          fi
       - run: npm run build
       - if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5

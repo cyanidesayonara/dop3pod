@@ -1,4 +1,5 @@
 import type { Episode, Show } from '../../tools/catalog/types.ts';
+import { loadDirectoryShow } from './directory.ts';
 export type { Episode, Show };
 export type ShowCard = Pick<Show, 'id' | 'category' | 'language' | 'title' | 'author' | 'description' | 'image' | 'cover' | 'stale'> & { latest: string | null };
 export type Catalog = { generated: string; shows: ShowCard[] };
@@ -17,7 +18,7 @@ export function loadShow(id: string): Promise<Show> {
   if (!/^[a-z0-9-]{1,80}$/.test(id)) return Promise.reject(new Error('unknown show'));
   let p = shows.get(id);
   if (!p) {
-    p = load<Show>(`shows/${id}.json`).catch((e) => { shows.delete(id); throw e; });
+    p = (/^d-\d{1,9}$/.test(id) ? loadDirectoryShow(id) : load<Show>(`shows/${id}.json`)).catch((e) => { shows.delete(id); throw e; });
     shows.set(id, p);
   }
   return p;
