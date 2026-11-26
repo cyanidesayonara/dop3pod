@@ -1,18 +1,24 @@
 <script lang="ts">
+  import type { DirectoryIndex } from '../../tools/catalog/types.ts';
+  import { buildBrowseList, buildCategories, buildFavoriteShows, buildLanguages, filterBrowse, languageLabel } from '../lib/browse.ts';
   import { artwork, clock, day, loadCatalog, loadShow, minutes, type Episode, type Show, type ShowCard } from '../lib/data.ts';
+  import { loadDirectory } from '../lib/directory.ts';
   import { player } from '../lib/player.svelte.ts';
   import { saved, setView } from '../lib/saved.svelte.ts';
   import { removeFromQueue } from '../lib/queue.ts';
   import Cover from './Cover.svelte';
   import Dial from './Dial.svelte';
-  import DirectoryResults from './DirectoryResults.svelte';
 
   let shows = $state.raw<ShowCard[]>([]);
+  let directory = $state.raw<DirectoryIndex | null>(null);
   let failed = $state(false);
   let ready = $state(false);
+  let dirReady = $state(false);
+  let dirFailed = $state(false);
   let query = $state('');
   let category = $state('All');
   let language = $state('all');
+  let shown = $state(30);
   let problem = $state('');
 
   async function load() {
@@ -25,45 +31,41 @@
     }
   }
   void load();
+  void loadDirectory().then(
+    (d) => {
+      directory = d;
+      dirReady = true;
+    },
+    () => {
+      dirFailed = true;
+    },
+  );
   document.title = 'dopepod';
 
-  const directoryFavorites = $derived<ShowCard[]>(
-    saved.favorites
-      .filter((id) => id.startsWith('d-') && saved.favoriteShows[id])
-      .map((id) => {
-        const m = saved.favoriteShows[id];
-        return {
-          id,
-          category: m.category || 'Other',
-          language: m.language || '',
-          title: m.title,
-          author: m.author,
-          description: '',
-          image: m.image,
-          cover: '',
-          stale: false,
-          latest: null,
-        };
-      }),
-  );
-  const categories = $derived(['All', ...new Set(shows.map((s) => s.category))]);
-  const favorites = $derived([...shows.filter((s) => saved.favorites.includes(s.id)), ...directoryFavorites]);
+  const allShows = $derived(buildBrowseList(shows, directory));
+  const favorites = $derived(buildFavoriteShows(allShows, saved.favorites, saved.favoriteShows));
+  const categories = $derived(buildCategories(allShows));
   const dial = $derived([...(favorites.length ? ['Favorites'] : []), ...categories]);
   const current = $derived(dial.includes(category) ? category : 'All');
-  const NAMES: Record<string, string> = { en: 'English', fi: 'Suomi', es: 'Español', ca: 'Català' };
-  const languages = $derived([
-    { id: 'all', name: 'All languages' },
-    ...[...new Set(shows.map((s) => s.language))].map((id) => ({ id, name: NAMES[id] ?? id })),
-  ]);
-  const speaks = (s: ShowCard) => language === 'all' || s.language === language;
-  const inCategory = (s: ShowCard) => current === 'All' || (current === 'Favorites' ? saved.favorites.includes(s.id) : s.category === current);
-  const categoryCount = $derived(current === 'Favorites' ? favorites.length : shows.filter(inCategory).length);
-  const count = (n: number) => `${n} ${n === 1 ? 'podcast' : 'podcasts'}`;
-  const pool = $derived(current === 'Favorites' ? favorites : shows.filter(inCategory));
-  const filtered = $derived.by(() => {
-    const q = query.trim().toLowerCase();
-    return pool.filter(speaks).filter((s) => !q || `${s.title} ${s.author} ${s.description}`.toLowerCase().includes(q));
+  const languages = $derived(buildLanguages(allShows));
+  const currentLanguage = $derived(languages.some((l) => l.id === language) ? language : 'all');
+  const categoryPool = $derived(
+    current === 'Favorites' ? favorites : current === 'All' ? allShows : allShows.filter((s) => s.category === current),
+  );
+  const categoryCount = $derived(categoryPool.length);
+  const languageCount = $derived(
+    currentLanguage === 'all' ? allShows.length : allShows.filter((s) => s.language === currentLanguage).length,
+  );
+  const count = (n: number) => `${n.toLocaleString('en')} ${n === 1 ? 'podcast' : 'podcasts'}`;
+  const filtered = $derived(filterBrowse(categoryPool, currentLanguage, query));
+
+  $effect(() => {
+    void query;
+    void current;
+    void currentLanguage;
+    shown = 30;
   });
+
   const resume = $derived(
     Object.entries(saved.progress)
       .filter(([id, p]) => !p.done && !player.isCurrent(id) && shows.some((s) => s.id === p.show))
@@ -115,7 +117,7 @@
     <p class="tiles" aria-hidden="true">{#each 'dopepod' as c, i (i)}<span>{c}</span>{/each}</p>
     <p>A lightweight player that runs in your browser. No account, no sign-up, nothing to install.</p>
   </div>
-  <Dial label="Language" options={languages} bind:value={language} detail={ready ? count(shows.filter(speaks).length) : '…'} disabled={!ready} />
+  <Dial label="Language" options={languages} bind:value={() => currentLanguage, (v) => (language = v)} detail={ready ? count(languageCount) : '…'} disabled={!ready} />
 </section>
 
 {#if failed}
@@ -202,30 +204,59 @@
         <button class="chip" aria-pressed={c === current} onclick={() => (category = c)}>{c}</button>
       {/each}
     </div>
+    <div class="browse-meta">
+      <p class="meta" role="status">
+        {filtered.length.toLocaleString('en')} {query.trim() ? (filtered.length === 1 ? 'match' : 'matches') : (filtered.length === 1 ? 'podcast' : 'podcasts')}{#if !dirReady && !dirFailed} · Loading full directory…{/if}{#if dirFailed} · Showing featured shows only{/if}
+      </p>
+      <label class="lang-picker">
+        <span class="sr">Language</span>
+        <select aria-label="Language" bind:value={() => currentLanguage, (v) => (language = v)}>
+          {#each languages as l (l.id)}
+            <option value={l.id}>{l.id === 'all' ? l.name : `${l.name} (${l.count.toLocaleString('en')})`}</option>
+          {/each}
+        </select>
+      </label>
+    </div>
     {#if filtered.length}
       <ul class={saved.view === 'list' ? 'striped browse-list' : 'grid'}>
-        {#each filtered as s (s.id)}
+        {#each filtered.slice(0, shown) as s (s.id)}
           <li>
             <a class="card" href="#/show/{s.id}">
               <Cover title={s.title} src={artwork(s)} size={saved.view === 'list' ? 56 : 88} />
               <span class="grow">
                 <strong lang={s.language || undefined}>{s.title}</strong>
                 {#if saved.view === 'list'}
-                  {@const info = [s.author && s.author !== s.title ? `by ${s.author}` : '', current === 'All' || current === 'Favorites' ? s.category : '', s.latest ? `Latest ${day(s.latest)}` : ''].filter(Boolean).join(' · ')}
-                  {#if info}<span class="meta">{info}</span>{/if}
+                  {@const info = [
+                    s.author && s.author !== s.title ? `by ${s.author}` : '',
+                    current === 'All' || current === 'Favorites' ? s.category : '',
+                    currentLanguage === 'all' ? languageLabel(s.language) : '',
+                    s.latest ? `Latest ${day(s.latest)}` : '',
+                  ].filter(Boolean).join(' · ')}
+                  {#if info || s.explicit}
+                    <span class="meta">{info}{#if info && s.explicit} · {/if}{#if s.explicit}<span class="badge" aria-hidden="true">E</span><span class="sr">Explicit</span>{/if}</span>
+                  {/if}
                   {#if s.description}<span class="meta">{s.description}</span>{/if}
                 {:else}
                   {#if s.author && s.author !== s.title}<span class="meta">by {s.author}</span>{/if}
-                  {#if s.latest}<span class="meta">Latest {day(s.latest)}</span>{/if}
+                  {@const sub = [
+                    current === 'All' || current === 'Favorites' ? s.category : '',
+                    currentLanguage === 'all' ? languageLabel(s.language) : '',
+                    s.latest ? `Latest ${day(s.latest)}` : '',
+                  ].filter(Boolean).join(' · ')}
+                  {#if sub || s.explicit}
+                    <span class="meta">{sub}{#if sub && s.explicit} · {/if}{#if s.explicit}<span class="badge" aria-hidden="true">E</span><span class="sr">Explicit</span>{/if}</span>
+                  {/if}
                 {/if}
               </span>
             </a>
           </li>
         {/each}
       </ul>
+      {#if filtered.length > shown}
+        <p class="more"><button class="btn" onclick={() => (shown += 30)}>Show more ({(filtered.length - shown).toLocaleString('en')} left)</button></p>
+      {/if}
     {:else}
-      <p class="notice" role="status">{query.trim() ? `None of the featured podcasts match “${query}”.` : 'No podcasts here yet. Try another category or language.'}</p>
+      <p class="notice" role="status">{query.trim() ? `No podcasts match “${query}”.` : 'No podcasts here yet. Try another category or language.'}</p>
     {/if}
   </section>
-  <DirectoryResults {query} category={current === 'Favorites' ? 'All' : current} {language} view={saved.view} />
 {/if}

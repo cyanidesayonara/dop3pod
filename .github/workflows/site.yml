@@ -17,8 +17,8 @@ on:
         default: false
   schedule:
     - cron: "17 4 * * *"
-    # the directory, from Podcast Index's weekly dump, once a month
-    - cron: "41 3 2 * *"
+    # the directory, from Podcast Index's weekly dump, once a week
+    - cron: "41 3 * * 0"
 
 permissions:
   contents: read
@@ -38,7 +38,7 @@ jobs:
       - run: npm run catalog -- --prev https://cyanidesayonara.github.io/dop3pod/data
       - name: Directory
         env:
-          REBUILD: ${{ github.event.schedule == '41 3 2 * *' || inputs.rebuild-directory }}
+          REBUILD: ${{ github.event.schedule == '41 3 * * 0' || inputs.rebuild-directory }}
         run: |
           set -euo pipefail
           prev=https://cyanidesayonara.github.io/dop3pod/data

@@ -72,13 +72,14 @@ main { max-width: 72rem; margin: 0 auto; padding: 1rem; display: grid; gap: 1rem
 .bar-head { display: flex; gap: 0.6rem 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .bar-head :focus-visible { outline-color: #000; }
 .bar-tools { display: flex; gap: 0.5rem; align-items: center; max-width: 100%; }
-.view-toggle { display: inline-flex; border: 2px solid #000; border-radius: 4px; overflow: hidden; flex: none; }
-.view-toggle .icon-btn { min-width: 2.75rem; min-height: 2.75rem; border-radius: 0; }
-.view-toggle .icon-btn + .icon-btn { border-left: 2px solid #000; }
-.view-toggle .icon-btn:hover:not([aria-pressed='true']) { background: #0000001f; }
-.view-toggle .icon-btn[aria-pressed='true'] { background: #000; color: var(--teal); }
+.view-toggle { display: inline-flex; align-items: stretch; height: 2.75rem; padding: 3px; gap: 2px; background: #fff; border-radius: 4px; flex: none; }
+.view-toggle .icon-btn { min-width: 2.35rem; min-height: 0; height: 100%; border-radius: 3px; color: #2e2e2e; }
+.view-toggle .icon-btn:hover:not([aria-pressed='true']) { background: #00bfa524; }
+.view-toggle .icon-btn[aria-pressed='true'] { background: #2e2e2e; color: #fff; }
 .browse-list > li + li { border-top: 1px solid var(--hair); }
-input[type='search'] { appearance: none; background: #fff; color: #111; border: 0; border-radius: 4px; padding: 0.55rem 0.75rem; width: 16rem; max-width: 100%; min-height: 2.75rem; }
+.browse-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; flex-wrap: wrap; padding: 0.5rem 1rem; border-bottom: 1px solid var(--hair); }
+.lang-picker select { min-height: 2.5rem; padding: 0 0.5rem; max-width: 100%; }
+input[type='search'] { appearance: none; background: #fff; color: #2e2e2e; border: 0; border-radius: 4px; padding: 0 0.75rem; width: 16rem; max-width: 100%; height: 2.75rem; }
 input[type='search']::placeholder { color: #666; opacity: 1; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.8rem 1rem; border-bottom: 1px solid var(--hair); }
 .chip, .btn { background: none; border: 2px solid var(--line); border-radius: 4px; padding: 0.35rem 0.8rem; min-height: 2.75rem; font-weight: 500; display: inline-flex; align-items: center; color: var(--ink); text-decoration: none; }

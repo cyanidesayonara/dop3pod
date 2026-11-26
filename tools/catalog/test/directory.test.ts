@@ -42,6 +42,11 @@ test('titles and descriptions are plain text, and unknown categories become Othe
   assert.equal(shards[1000 % SHARDS][1000].explicit, true);
 });
 
+test('legacy ISO language codes normalize in directory output', () => {
+  const { index } = buildDirectory([row({ id: 1, language: 'in' }), row({ id: 2, title: 'Show 2', language: 'iw' })], new Set(), 'now');
+  assert.deepEqual(index.languages, ['id', 'he']);
+});
+
 test('copying retries server errors but not missing files', async () => {
   let n = 0;
   const flaky = async () => (++n < 3 ? new Response('busy', { status: 503 }) : new Response('ok'));

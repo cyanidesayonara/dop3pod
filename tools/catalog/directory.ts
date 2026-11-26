@@ -9,9 +9,11 @@ import { pathToFileURL } from 'node:url';
 import { httpsUrl, plain } from './rss.ts';
 import type { DirectoryDetail, DirectoryIndex, ShowSource } from './types.ts';
 
-export const SHARDS = 256;
+const SHARDS_DEFAULT = 256;
+export const SHARDS = SHARDS_DEFAULT;
 const MIN_EPISODES = 10;
 const ACTIVE_DAYS = 60;
+const LANG_ALIAS: Record<string, string> = { in: 'id', iw: 'he', ji: 'yi' };
 
 // Podcast Index categories to the site's. Anything else falls under "Other".
 const CATEGORY: Record<string, string> = {
@@ -40,7 +42,8 @@ export function buildDirectory(rows: DumpRow[], featured: Set<string>, generated
     if (!feed || !title || featured.has(feed) || seen.has(key)) continue;
     seen.add(key);
     const cat = CATEGORY[r.category1.toLowerCase()] ?? 'Other';
-    const lang = (/^[a-z]{2}/i.exec(r.language)?.[0] ?? '').toLowerCase();
+    const rawLang = (/^[a-z]{2}/i.exec(r.language)?.[0] ?? '').toLowerCase();
+    const lang = LANG_ALIAS[rawLang] ?? rawLang;
     if (!cats.has(cat)) cats.set(cat, cats.size);
     if (!langs.has(lang)) langs.set(lang, langs.size);
     index.shows.push([r.id, title, plain(r.itunesAuthor, 120), langs.get(lang)!, cats.get(cat)!, httpsUrl(r.imageUrl), r.explicit ? 1 : 0, r.newestItemPubdate]);
