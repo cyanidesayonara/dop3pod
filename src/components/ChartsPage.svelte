@@ -14,7 +14,7 @@
   load();
 
   const current = $derived(charts?.lists.find((l) => l.id === list) ?? charts?.lists[0]);
-  $effect(() => { document.title = `${current ? `${current.label} charts` : 'Charts'} · dopepod`; });
+  $effect(() => { document.title = `New and rising${current && current.id !== 'all' ? `: ${current.label}` : ''} · dopepod`; });
   const groups = $derived([
     { label: 'Categories', lists: charts?.lists.filter((l) => !l.id.startsWith('l-')) ?? [] },
     { label: 'Languages', lists: charts?.lists.filter((l) => l.id.startsWith('l-')) ?? [] },
@@ -25,7 +25,7 @@
 
 <section class="panel list" aria-labelledby="charts">
   <div class="bar-head">
-    <h1 id="charts">Trending{current && current.id !== 'all' ? `: ${current.label}` : ''}</h1>
+    <h1 id="charts">New and rising{current && current.id !== 'all' ? `: ${current.label}` : ''}</h1>
   </div>
   {#if failed}
     <div class="notice" role="alert">
@@ -37,6 +37,7 @@
   {:else if !current}
     <p class="notice" role="status">No charts yet. They're updated once a day.</p>
   {:else}
+    <p class="meta count">Shows growing fastest right now, so expect new and unfamiliar names.</p>
     {#each groups as g (g.label)}
       {#if g.lists.length}
         <div class="chips" role="group" aria-label={g.label}>

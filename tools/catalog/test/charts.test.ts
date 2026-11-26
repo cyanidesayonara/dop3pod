@@ -28,11 +28,13 @@ test('fetchList asks for the right list and sorts by trend score', async () => {
   await assert.rejects(fetchList(LISTS[0], 'k', 's', async () => Response.json({ status: 'false' })), /no feeds/);
 });
 
-test('only established shows are kept, without repeats', () => {
+test('rows link to featured or directory pages, others get a detail, repeats go', () => {
   const c = buildCharts(new Map([['all', [feed(1), feed(2, { url: 'https://featured.example/rss' }), feed(3), feed(5, { title: 'Show 3' }), feed(4, { url: 'javascript:x' })]]]),
-    new Map([['https://featured.example/rss', 'radiolab']]), new Set([3, 4, 5]), 'now');
-  assert.deepEqual(c.lists[0].items.map((i) => i.show), ['radiolab', 'd-3']);
-  assert.deepEqual(c.extras, {});
+    new Map([['https://featured.example/rss', 'radiolab']]), new Set([3]), 'now');
+  assert.deepEqual(c.lists[0].items.map((i) => i.show), ['d-1', 'radiolab', 'd-3']);
+  assert.deepEqual(Object.keys(c.extras), ['1']);
+  assert.equal(c.extras[1].description, 'About');
+  assert.equal(c.extras[1].category, 'Technology');
 });
 
 test('lists with no answer are left out', () => {

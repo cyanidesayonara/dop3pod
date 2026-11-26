@@ -8,13 +8,13 @@ import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import type { Fetcher } from './build.ts';
 import { httpsUrl, plain } from './rss.ts';
-import type { Charts, ChartItem, DirectoryIndex, ShowSource } from './types.ts';
+import type { Charts, ChartItem, DirectoryDetail, DirectoryIndex, ShowSource } from './types.ts';
 
 const API = 'https://api.podcastindex.org/api/1.0/podcasts/trending';
 const UA = 'dopepod-catalog/1.0 (+https://github.com/cyanidesayonara/dop3pod)';
 const SIZE = 50;
-// Trending alone favors brand-new shows, so ask for many and keep the ones that are also established.
-const ASK = 1000;
+// Trending favors new, fast-growing shows, so the site calls these lists "New and rising". A little extra room for repeats.
+const ASK = 100;
 
 /** Lists to fetch: Podcast Index category names and language codes. */
 export const LISTS: { id: string; label: string; cat?: string; lang?: string }[] = [
@@ -48,7 +48,7 @@ export async function fetchList(list: (typeof LISTS)[number], key: string, secre
   return [...body.feeds].sort((a, b) => (b.trendScore ?? 0) - (a.trendScore ?? 0));
 }
 
-/** Turns API answers into the published charts: established shows only (featured or in the directory), no repeats, top 50. */
+/** Turns API answers into the published charts: top 50, no repeats. Featured and directory shows link to their pages; the rest get a small detail. */
 export function buildCharts(
   answers: Map<string, Trending[]>, featured: Map<string, string>, directory: Set<number>, generated: string,
 ): Charts {
@@ -63,13 +63,18 @@ export function buildCharts(
       const feed = httpsUrl(f.url);
       const title = plain(f.title ?? '', 200);
       if (!feed || !title || !Number.isInteger(f.id)) continue;
-      if (!featured.has(feed) && !directory.has(f.id)) continue;
       const key = title.toLowerCase();
       if (titles.has(key)) continue;
       titles.add(key);
       const image = httpsUrl(f.artwork) || httpsUrl(f.image);
       const show = featured.get(feed) ?? `d-${f.id}`;
-      items.push({ show, title, author: plain(f.author ?? '', 120), image, language: (/^[a-z]{2}/i.exec(f.language ?? '')?.[0] ?? '').toLowerCase() });
+      const language = (/^[a-z]{2}/i.exec(f.language ?? '')?.[0] ?? '').toLowerCase();
+      items.push({ show, title, author: plain(f.author ?? '', 120), image, language });
+      if (!featured.has(feed) && !directory.has(f.id))
+        charts.extras[f.id] ??= {
+          title, author: plain(f.author ?? '', 120), image, language, category: Object.values(f.categories ?? {})[0] ?? 'Other', explicit: false,
+          feed, link: '', description: plain(f.description ?? '', 600), episodes: 0, newest: null,
+        } satisfies DirectoryDetail;
     }
     if (items.length) charts.lists.push({ id: list.id, label: list.label, items });
   }
