@@ -29,9 +29,13 @@
   $effect(() => { if (player.episode) removeFromQueue(player.episode.id); });
 
   applyTheme();
-  const order = { auto: 'light', light: 'dark', dark: 'auto' } as const;
-  function cycleTheme() {
-    saved.theme = order[saved.theme];
+  // One click always flips what you see. Until the first click the theme follows the system.
+  const systemScheme = matchMedia('(prefers-color-scheme: dark)');
+  let systemDark = $state(systemScheme.matches);
+  systemScheme.addEventListener('change', (e) => (systemDark = e.matches));
+  const dark = $derived(saved.theme === 'dark' || (saved.theme === 'auto' && systemDark));
+  function toggleTheme() {
+    saved.theme = dark ? 'light' : 'dark';
     applyTheme();
     save();
   }
@@ -57,8 +61,8 @@
     <a href="#/played" aria-current={route.name === 'played' ? 'page' : undefined}>Last played</a>
   </nav>
   <a class="wordmark" href="#/" aria-label="dopepod home">dopepod</a>
-  <button class="icon-btn theme" onclick={cycleTheme} aria-label="Theme: {saved.theme}. Change theme" title="Theme: {saved.theme}">
-    <svg viewBox="0 0 24 24" aria-hidden="true" class:lit={saved.theme !== 'dark'}>
+  <button class="icon-btn theme" onclick={toggleTheme} aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'} title={dark ? 'Switch to light theme' : 'Switch to dark theme'}>
+    <svg viewBox="0 0 24 24" aria-hidden="true" class:lit={!dark}>
       <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" />
     </svg>
   </button>
