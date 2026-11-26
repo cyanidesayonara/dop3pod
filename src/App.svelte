@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
+  import History from './components/History.svelte';
   import Home from './components/Home.svelte';
   import PlayerBar from './components/PlayerBar.svelte';
   import ShowPage from './components/ShowPage.svelte';
@@ -7,9 +8,10 @@
   import { advance, removeFromQueue } from './lib/queue.ts';
   import { applyTheme, save, saved } from './lib/saved.svelte.ts';
 
-  type Route = { name: 'home' } | { name: 'show'; id: string; episode: string };
+  type Route = { name: 'home' } | { name: 'played' } | { name: 'show'; id: string; episode: string };
   function parse(): Route {
     const [, kind, id = '', episode = ''] = location.hash.replace(/^#/, '').split('/');
+    if (kind === 'played') return { name: 'played' };
     return kind === 'show' && id ? { name: 'show', id, episode } : { name: 'home' };
   }
 
@@ -50,8 +52,12 @@
 
 <a class="skip" href="#main" onclick={(e) => { e.preventDefault(); main.focus(); }}>Skip to content</a>
 <header class="top">
+  <nav class="top-links" aria-label="Main">
+    <a href="#/" aria-current={route.name === 'home' ? 'page' : undefined}>Browse</a>
+    <a href="#/played" aria-current={route.name === 'played' ? 'page' : undefined}>Last played</a>
+  </nav>
   <a class="wordmark" href="#/" aria-label="dopepod home">dopepod</a>
-  <button class="icon-btn" onclick={cycleTheme} aria-label="Theme: {saved.theme}. Change theme" title="Theme: {saved.theme}">
+  <button class="icon-btn theme" onclick={cycleTheme} aria-label="Theme: {saved.theme}. Change theme" title="Theme: {saved.theme}">
     <svg viewBox="0 0 24 24" aria-hidden="true" class:lit={saved.theme !== 'dark'}>
       <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" />
     </svg>
@@ -61,6 +67,8 @@
 <main id="main" tabindex="-1" bind:this={main}>
   {#if route.name === 'show'}
     {#key route.id}<ShowPage id={route.id} linked={route.episode} />{/key}
+  {:else if route.name === 'played'}
+    <History />
   {:else}
     <Home />
   {/if}

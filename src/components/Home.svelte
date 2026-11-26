@@ -102,7 +102,7 @@
   {#if resume.length}
     <section class="panel list" aria-labelledby="resume">
       <h2 id="resume">Continue listening</h2>
-      <ul>
+      <ul class="striped">
         {#each resume as r (r.id)}
           <li>
             <button class="resume" onclick={() => go(r.show.id, r.id)}>
@@ -122,22 +122,23 @@
   {#if saved.queue.length}
     <section class="panel list" aria-labelledby="queue">
       <h2 id="queue">Up next</h2>
-      <ul>
-        {#each saved.queue as q (q.id)}
-          <li class="row">
+      <ol class="ranked">
+        {#each saved.queue as q, i (q.id)}
+          <li>
+            <span class="dot" aria-hidden="true">{i + 1}</span>
             <button class="resume" onclick={() => go(q.show, q.id)}>
               <span class="grow"><strong>{q.title}</strong><span class="meta">{q.showTitle}</span></span>
             </button>
             <button class="link" aria-label="Remove {q.title} from the queue" onclick={() => removeFromQueue(q.id)}>Remove</button>
           </li>
         {/each}
-      </ul>
+      </ol>
     </section>
   {/if}
   {#if fresh.length}
     <section class="panel list" aria-labelledby="fresh">
       <h2 id="fresh">New from your favorites</h2>
-      <ul>
+      <ul class="striped">
         {#each fresh as f (f.e.id)}
           <li>
             <button class="resume" onclick={() => player.play(f.show, f.e)}>
