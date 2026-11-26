@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildDirectory, SHARDS, type DumpRow } from '../directory.ts';
+import { buildDirectory, fetchRetrying, SHARDS, type DumpRow } from '../directory.ts';
 
 const row = (x: Partial<DumpRow> = {}): DumpRow => ({
   id: 1000, url: 'https://f.example/feed', title: 'Show', link: 'https://f.example/', itunesAuthor: 'Host', explicit: 0,
@@ -40,4 +40,15 @@ test('titles and descriptions are plain text, and unknown categories become Othe
   assert.equal(index.shows[0][6], 1);
   assert.equal(index.languages[index.shows[0][3]], '');
   assert.equal(shards[1000 % SHARDS][1000].explicit, true);
+});
+
+test('copying retries server errors but not missing files', async () => {
+  let n = 0;
+  const flaky = async () => (++n < 3 ? new Response('busy', { status: 503 }) : new Response('ok'));
+  assert.equal(await fetchRetrying('https://x.example/a', 4, 1, flaky as typeof fetch), 'ok');
+  assert.equal(n, 3);
+  n = 0;
+  await assert.rejects(fetchRetrying('https://x.example/a', 4, 1, (async () => { n++; return new Response('no', { status: 404 }); }) as typeof fetch), /404/);
+  assert.equal(n, 1);
+  await assert.rejects(fetchRetrying('https://x.example/a', 2, 1, (async () => new Response('busy', { status: 503 })) as typeof fetch), /503/);
 });

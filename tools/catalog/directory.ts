@@ -71,13 +71,27 @@ async function fromDump(db: string, featured: Set<string>) {
   return buildDirectory(rows, featured, new Date(now * 1000).toISOString());
 }
 
+/** Fetches a URL, retrying timeouts and server errors (GitHub Pages answers 503 now and then). */
+export async function fetchRetrying(url: string, tries = 4, wait = 2000, get: typeof fetch = fetch): Promise<string> {
+  for (let attempt = 1; ; attempt++) {
+    let why: string;
+    try {
+      const r = await get(url, { signal: AbortSignal.timeout(30_000) });
+      if (r.ok) return await r.text();
+      why = `HTTP ${r.status}`;
+      if (r.status < 500 && r.status !== 429) throw new Error(why);
+    } catch (e) {
+      why = (e as Error).message;
+      if (/^HTTP 4/.test(why) && !why.includes('429')) throw e;
+    }
+    if (attempt >= tries) throw new Error(`${url}: ${why}`);
+    await new Promise((r) => setTimeout(r, wait * attempt));
+  }
+}
+
 async function fromPrevious(base: string) {
-  const get = async (f: string) => {
-    if (!/^https:/.test(base)) return readFile(path.join(base, 'directory', f), 'utf8');
-    const r = await fetch(`${base.replace(/\/$/, '')}/directory/${f}`, { signal: AbortSignal.timeout(30_000) });
-    if (!r.ok) throw new Error(`${f}: HTTP ${r.status}`);
-    return r.text();
-  };
+  const get = async (f: string) =>
+    /^https:/.test(base) ? fetchRetrying(`${base.replace(/\/$/, '')}/directory/${f}`) : readFile(path.join(base, 'directory', f), 'utf8');
   const index = JSON.parse(await get('index.json')) as DirectoryIndex;
   const shards: Record<string, DirectoryDetail>[] = [];
   for (let i = 0; i < SHARDS; i += 16)
@@ -93,8 +107,9 @@ async function main() {
   if (values.db) built = await fromDump(values.db, featured);
   else if (values.prev) {
     try { built = await fromPrevious(values.prev); } catch (e) {
-      console.log(`No previous directory (${(e as Error).message}); the site will have none until the next rebuild.`);
-      return;
+      // Fail loudly: the workflow then rebuilds from the dump instead of publishing a site without a directory.
+      console.error(`Could not copy the previous directory: ${(e as Error).message}`);
+      process.exit(2);
     }
   } else throw new Error('pass --db or --prev');
   const dir = path.join(path.resolve(values.out!), 'directory');

@@ -7,6 +7,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import type { Fetcher } from './build.ts';
+import { fetchRetrying } from './directory.ts';
 import { httpsUrl, plain } from './rss.ts';
 import type { Charts, ChartItem, DirectoryDetail, DirectoryIndex, ShowSource } from './types.ts';
 
@@ -85,7 +86,7 @@ async function readPrev(base: string | undefined) {
   if (!base) return null;
   try {
     const raw = /^https:/.test(base)
-      ? await fetch(`${base.replace(/\/$/, '')}/charts.json`, { signal: AbortSignal.timeout(20_000) }).then((r) => (r.ok ? r.text() : Promise.reject()))
+      ? await fetchRetrying(`${base.replace(/\/$/, '')}/charts.json`)
       : await readFile(path.join(base, 'charts.json'), 'utf8');
     return raw;
   } catch {
