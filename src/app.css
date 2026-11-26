@@ -132,7 +132,7 @@ footer.with-player { padding-bottom: calc(9rem + env(safe-area-inset-bottom)); }
 .now-playing { display: flex; gap: 0.8rem; align-items: center; color: inherit; text-decoration: none; min-width: 0; }
 .now-playing strong, .now-playing .meta { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.35; }
 .controls { display: flex; align-items: center; gap: 0.3rem; }
-.extras { display: flex; align-items: center; justify-content: flex-end; gap: 0.8rem; }
+.extras { display: flex; align-items: center; justify-content: flex-end; gap: 0.8rem; min-width: 0; }
 .time { font-size: 0.875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 select { background: var(--panel); border: 2px solid var(--line); border-radius: 4px; min-height: 2.4rem; padding: 0 0.3rem; }
 input[type='range'] { appearance: none; background: none; margin: 0; height: 1.5rem; cursor: pointer; --track: linear-gradient(to right, var(--teal) var(--p), var(--hair) var(--p)); }
@@ -141,7 +141,14 @@ input[type='range']::-moz-range-track { height: 6px; background: var(--track); b
 input[type='range']::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; margin-top: -5px; border-radius: 50%; border: 0; background: var(--accent); }
 input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; border: 0; background: var(--accent); }
 .seek { display: block; width: 100%; }
-.volume { width: 6rem; }
+.volume { flex: 0 1 6rem; min-width: 3rem; }
+
+/* not enough room for three columns: controls get a centred row of their own */
+@media (max-width: 72rem) {
+  .player-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 0.2rem; }
+  .controls { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
+  footer.with-player { padding-bottom: calc(12rem + env(safe-area-inset-bottom)); }
+}
 
 @media (max-width: 48rem) {
   /* the wordmark keeps the centre; the links get a row of their own below it */
@@ -166,7 +173,7 @@ input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius
   .sleep { max-width: 9.5rem; }
   .player-row { grid-template-columns: 1fr; gap: 0.2rem; padding: 0 1rem 0.5rem; }
   .now-playing { grid-row: 1; }
-  .controls { justify-content: center; }
+  .controls { grid-row: auto; }
   .extras { justify-content: space-between; }
   .volume { display: none; }
   footer.with-player { padding-bottom: calc(14rem + env(safe-area-inset-bottom)); }
