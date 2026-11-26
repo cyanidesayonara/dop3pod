@@ -41,3 +41,16 @@ test('lists with no answer are left out', () => {
   const c = buildCharts(new Map([['all', [feed(1)]], ['c-science', []]]), new Map(), new Set([1]), 'now');
   assert.deepEqual(c.lists.map((l) => l.id), ['all']);
 });
+
+test('explicit flag carries from trending feeds and directory entries', () => {
+  const c = buildCharts(
+    new Map([['all', [feed(1, { explicit: true }), feed(2), feed(3)]]]),
+    new Map(),
+    new Set([2]),
+    'now',
+    new Set([2]),
+  );
+  assert.deepEqual(c.lists[0].items.map((i) => i.explicit ?? false), [true, true, false]);
+  assert.equal(c.extras[1].explicit, true);
+  assert.equal(c.extras[3].explicit, false);
+});

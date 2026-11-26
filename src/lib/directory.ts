@@ -80,7 +80,7 @@ export async function loadDirectoryShow(id: string): Promise<Show> {
       seen.add(eid);
       episodes.push({ id: eid, ...e });
     }
-    return { ...show, episodes, limited: false, description: feed.description || show.description, image: show.image || feed.image };
+    return { ...show, episodes, limited: false, explicit: show.explicit || feed.explicit, description: feed.description || show.description, image: show.image || feed.image };
   }
   if (d.newest)
     show.episodes = [{ id: 'd' + (await hash(`${pid}|${d.newest.audio}`)), title: `Latest episode of ${d.title}`, date: d.newest.date,

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { artwork, clock, day, loadCatalog, loadShow, minutes, type Episode, type Show, type ShowCard } from '../lib/data.ts';
   import { player } from '../lib/player.svelte.ts';
-  import { saved } from '../lib/saved.svelte.ts';
+  import { saved, setView } from '../lib/saved.svelte.ts';
   import { removeFromQueue } from '../lib/queue.ts';
   import Cover from './Cover.svelte';
   import Dial from './Dial.svelte';
@@ -27,8 +27,27 @@
   void load();
   document.title = 'dopepod';
 
+  const directoryFavorites = $derived<ShowCard[]>(
+    saved.favorites
+      .filter((id) => id.startsWith('d-') && saved.favoriteShows[id])
+      .map((id) => {
+        const m = saved.favoriteShows[id];
+        return {
+          id,
+          category: m.category || 'Other',
+          language: m.language || '',
+          title: m.title,
+          author: m.author,
+          description: '',
+          image: m.image,
+          cover: '',
+          stale: false,
+          latest: null,
+        };
+      }),
+  );
   const categories = $derived(['All', ...new Set(shows.map((s) => s.category))]);
-  const favorites = $derived(shows.filter((s) => saved.favorites.includes(s.id)));
+  const favorites = $derived([...shows.filter((s) => saved.favorites.includes(s.id)), ...directoryFavorites]);
   const dial = $derived([...(favorites.length ? ['Favorites'] : []), ...categories]);
   const current = $derived(dial.includes(category) ? category : 'All');
   const NAMES: Record<string, string> = { en: 'English', fi: 'Suomi', es: 'Español', ca: 'Català' };
@@ -38,10 +57,12 @@
   ]);
   const speaks = (s: ShowCard) => language === 'all' || s.language === language;
   const inCategory = (s: ShowCard) => current === 'All' || (current === 'Favorites' ? saved.favorites.includes(s.id) : s.category === current);
+  const categoryCount = $derived(current === 'Favorites' ? favorites.length : shows.filter(inCategory).length);
   const count = (n: number) => `${n} ${n === 1 ? 'podcast' : 'podcasts'}`;
+  const pool = $derived(current === 'Favorites' ? favorites : shows.filter(inCategory));
   const filtered = $derived.by(() => {
     const q = query.trim().toLowerCase();
-    return shows.filter((s) => inCategory(s) && speaks(s)).filter((s) => !q || `${s.title} ${s.author} ${s.description}`.toLowerCase().includes(q));
+    return pool.filter(speaks).filter((s) => !q || `${s.title} ${s.author} ${s.description}`.toLowerCase().includes(q));
   });
   const resume = $derived(
     Object.entries(saved.progress)
@@ -55,16 +76,22 @@
   let news = $state.raw<{ show: Show; e: Episode }[]>([]);
   $effect(() => {
     const ids = favorites.map((s) => s.id);
-    let current = true;
-    void Promise.allSettled(ids.map(loadShow)).then((r) => {
-      if (!current) return;
+    if (!ids.length) { news = []; return; }
+    let active = true;
+    news = news.filter(({ show }) => ids.includes(show.id));
+    const loaded = new Map<string, Show>();
+    const refresh = () => {
+      if (!active) return;
       const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
-      news = r
-        .flatMap((x) => (x.status === 'fulfilled' ? x.value.episodes.slice(0, 5).map((e) => ({ show: x.value, e })) : []))
+      news = [...loaded.values()]
+        .flatMap((show) => show.episodes.slice(0, 5).map((e) => ({ show, e })))
         .filter(({ e }) => e.date && e.date > since)
         .sort((a, b) => b.e.date!.localeCompare(a.e.date!));
-    });
-    return () => { current = false; };
+    };
+    for (const id of ids) {
+      void loadShow(id).then((show) => { loaded.set(id, show); refresh(); }, () => {});
+    }
+    return () => { active = false; };
   });
   const fresh = $derived(news.filter(({ e }) => !saved.progress[e.id] && !player.isCurrent(e.id)).slice(0, 5));
 
@@ -82,7 +109,7 @@
 </script>
 
 <section class="hero panel">
-  <Dial label="Category" options={dial.map((id) => ({ id, name: id === 'All' ? 'All categories' : id }))} bind:value={() => current, (v) => (category = v)} detail={ready ? count(shows.filter(inCategory).length) : '…'} disabled={!ready} />
+  <Dial label="Category" options={dial.map((id) => ({ id, name: id === 'All' ? 'All categories' : id }))} bind:value={() => current, (v) => (category = v)} detail={ready ? count(categoryCount) : '…'} disabled={!ready} />
   <div class="pitch">
     <h1><span class="sr">dopepod: </span>Discover and listen to free podcasts on</h1>
     <p class="tiles" aria-hidden="true">{#each 'dopepod' as c, i (i)}<span>{c}</span>{/each}</p>
@@ -145,7 +172,7 @@
             <button class="resume" onclick={() => player.play(f.show, f.e)}>
               <Cover title={f.show.title} src={artwork(f.show)} size={56} />
               <span class="grow">
-                <strong lang={f.show.language}>{f.e.title}</strong>
+                <strong lang={f.show.language || undefined}>{f.e.title}</strong>
                 <span class="meta">{[f.show.title, day(f.e.date), minutes(f.e.duration)].filter(Boolean).join(' · ')}</span>
               </span>
             </button>
@@ -158,7 +185,17 @@
   <section class="panel list" aria-labelledby="browse">
     <div class="bar-head">
       <h2 id="browse">{current === 'All' ? 'All podcasts' : current}</h2>
-      <input type="search" placeholder="Search podcasts" aria-label="Search podcasts" bind:value={query} />
+      <div class="bar-tools">
+        <div class="view-toggle" role="group" aria-label="Layout">
+          <button class="icon-btn" aria-pressed={saved.view === 'grid'} aria-label="Grid view" title="Grid view" onclick={() => setView('grid')}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>
+          </button>
+          <button class="icon-btn" aria-pressed={saved.view === 'list'} aria-label="List view" title="List view" onclick={() => setView('list')}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
+          </button>
+        </div>
+        <input type="search" placeholder="Search podcasts" aria-label="Search podcasts" bind:value={query} />
+      </div>
     </div>
     <div class="chips" role="group" aria-label="Choose a category">
       {#each dial as c (c)}
@@ -166,15 +203,21 @@
       {/each}
     </div>
     {#if filtered.length}
-      <ul class="grid">
+      <ul class={saved.view === 'list' ? 'striped browse-list' : 'grid'}>
         {#each filtered as s (s.id)}
           <li>
             <a class="card" href="#/show/{s.id}">
-              <Cover title={s.title} src={artwork(s)} size={88} />
+              <Cover title={s.title} src={artwork(s)} size={saved.view === 'list' ? 56 : 88} />
               <span class="grow">
-                <strong lang={s.language}>{s.title}</strong>
-                {#if s.author && s.author !== s.title}<span class="meta">by {s.author}</span>{/if}
-                {#if s.latest}<span class="meta">Latest {day(s.latest)}</span>{/if}
+                <strong lang={s.language || undefined}>{s.title}</strong>
+                {#if saved.view === 'list'}
+                  {@const info = [s.author && s.author !== s.title ? `by ${s.author}` : '', current === 'All' || current === 'Favorites' ? s.category : '', s.latest ? `Latest ${day(s.latest)}` : ''].filter(Boolean).join(' · ')}
+                  {#if info}<span class="meta">{info}</span>{/if}
+                  {#if s.description}<span class="meta">{s.description}</span>{/if}
+                {:else}
+                  {#if s.author && s.author !== s.title}<span class="meta">by {s.author}</span>{/if}
+                  {#if s.latest}<span class="meta">Latest {day(s.latest)}</span>{/if}
+                {/if}
               </span>
             </a>
           </li>
@@ -184,5 +227,5 @@
       <p class="notice" role="status">{query.trim() ? `None of the featured podcasts match “${query}”.` : 'No podcasts here yet. Try another category or language.'}</p>
     {/if}
   </section>
-  <DirectoryResults {query} category={current === 'Favorites' ? 'All' : current} {language} />
+  <DirectoryResults {query} category={current === 'Favorites' ? 'All' : current} {language} view={saved.view} />
 {/if}

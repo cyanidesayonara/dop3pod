@@ -3,7 +3,7 @@
   import { artwork, day, loadShow, minutes, type Episode, type Show } from '../lib/data.ts';
   import { inQueue, toggleQueue } from '../lib/queue.ts';
   import { player } from '../lib/player.svelte.ts';
-  import { saved, toggleFavorite } from '../lib/saved.svelte.ts';
+  import { saved, syncFavoriteMeta, toggleFavorite } from '../lib/saved.svelte.ts';
   import Cover from './Cover.svelte';
 
   let { id, linked }: { id: string; linked: string } = $props();
@@ -17,6 +17,7 @@
     failed = false;
     try {
       show = await loadShow(id);
+      syncFavoriteMeta(show);
       document.title = `${show.title} · dopepod`;
       await tick();
       if (linked) document.getElementById(`e-${linked}`)?.scrollIntoView({ block: 'center' });
@@ -56,7 +57,7 @@
   }
 </script>
 
-<a class="back" href="#/">← All podcasts</a>
+<a class="back" href="#/"><span aria-hidden="true">←</span> All podcasts</a>
 {#if failed}
   <div class="notice" role="alert">
     <p>Couldn't load this podcast. It may have left the catalog.</p>
@@ -69,12 +70,12 @@
   <section class="panel show-head">
     <Cover title={s.title} src={artwork(s)} size={160} />
     <div class="grow">
-      <h1 lang={s.language}>{s.title}</h1>
+      <h1 lang={s.language || undefined}>{s.title}</h1>
       {#if s.author && s.author !== s.title}<p class="meta">by {s.author}</p>{/if}
       {#if s.explicit}<p class="meta"><span class="badge">Explicit</span></p>{/if}
-      <p lang={s.language}>{s.description}</p>
+      <p lang={s.language || undefined}>{s.description}</p>
       <p class="actions">
-        {#if !id.startsWith('d-')}<button class="btn" aria-pressed={favorite} onclick={() => toggleFavorite(id)}>{favorite ? '★ Favorite' : '☆ Add to favorites'}</button>{/if}
+        <button class="btn" aria-pressed={favorite} onclick={() => toggleFavorite(s)}><span aria-hidden="true">{favorite ? '★' : '☆'}</span> {favorite ? 'Favorite' : 'Add to favorites'}</button>
         {#if s.link}<a class="btn ghost" href={s.link} target="_blank" rel="noopener noreferrer">Show website</a>{/if}
       </p>
       {#if s.limited}<p class="meta">This publisher doesn't let browsers read its feed, so only the latest episode is here. The show's website has the rest.</p>{/if}
@@ -97,17 +98,17 @@
             </svg>
           </button>
           <div class="grow">
-            <strong lang={s.language}>{e.title}</strong>
+            <strong lang={s.language || undefined}>{e.title}</strong>
             <p class="meta">{[day(e.date), status(e) || minutes(e.duration)].filter(Boolean).join(' · ')}</p>
             {#if e.summary}
-              <details><summary>About<span class="sr"> {e.title}</span></summary><p lang={s.language}>{e.summary}</p></details>
+              <details><summary>About<span class="sr"> {e.title}</span></summary><p lang={s.language || undefined}>{e.summary}</p></details>
             {/if}
           </div>
           <button class="link" aria-pressed={inQueue(e.id)} aria-label="Play {e.title} next" disabled={now} onclick={() => toggleQueue(s, e)}>{inQueue(e.id) ? 'Queued' : 'Queue'}</button>
           <button class="link" onclick={() => share(e)} aria-label="Copy link to {e.title}">{copied === e.id ? 'Copied' : 'Link'}</button>
         </li>
       {:else}
-        <li class="notice" role="status">No episodes match “{query}”.</li>
+        <li class="notice" role="status">{query.trim() ? `No episodes match “${query}”.` : 'No playable episodes are available for this podcast.'}</li>
       {/each}
     </ul>
     {#if episodes.length > Math.max(shown, linkedAt + 1)}

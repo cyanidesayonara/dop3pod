@@ -27,7 +27,7 @@ export const LISTS: { id: string; label: string; cat?: string; lang?: string }[]
 ];
 
 type Trending = { id: number; url: string; title: string; author: string; description: string; image: string; artwork: string;
-  language: string; categories: Record<string, string> | null; trendScore: number };
+  language: string; categories: Record<string, string> | null; trendScore: number; explicit?: boolean | number };
 
 export function authHeaders(key: string, secret: string, now = Math.floor(Date.now() / 1000)) {
   const date = String(now);
@@ -52,6 +52,7 @@ export async function fetchList(list: (typeof LISTS)[number], key: string, secre
 /** Turns API answers into the published charts: top 50, no repeats. Featured and directory shows link to their pages; the rest get a small detail. */
 export function buildCharts(
   answers: Map<string, Trending[]>, featured: Map<string, string>, directory: Set<number>, generated: string,
+  explicitDirectory: Set<number> = new Set(),
 ): Charts {
   const charts: Charts = { generated, lists: [], extras: {} };
   for (const list of LISTS) {
@@ -70,10 +71,11 @@ export function buildCharts(
       const image = httpsUrl(f.artwork) || httpsUrl(f.image);
       const show = featured.get(feed) ?? `d-${f.id}`;
       const language = (/^[a-z]{2}/i.exec(f.language ?? '')?.[0] ?? '').toLowerCase();
-      items.push({ show, title, author: plain(f.author ?? '', 120), image, language });
+      const explicit = Boolean(f.explicit || explicitDirectory.has(f.id));
+      items.push({ show, title, author: plain(f.author ?? '', 120), image, language, ...(explicit ? { explicit: true } : {}) });
       if (!featured.has(feed) && !directory.has(f.id))
         charts.extras[f.id] ??= {
-          title, author: plain(f.author ?? '', 120), image, language, category: Object.values(f.categories ?? {})[0] ?? 'Other', explicit: false,
+          title, author: plain(f.author ?? '', 120), image, language, category: Object.values(f.categories ?? {})[0] ?? 'Other', explicit,
           feed, link: '', description: plain(f.description ?? '', 600), episodes: 0, newest: null,
         } satisfies DirectoryDetail;
     }
@@ -117,11 +119,13 @@ async function main() {
   const sources = JSON.parse(await readFile('catalog/shows.json', 'utf8')) as ShowSource[];
   const featured = new Map(sources.map((s) => [httpsUrl(s.feed), s.id]));
   let directory = new Set<number>();
+  let explicitDirectory = new Set<number>();
   try {
     const d = JSON.parse(await readFile(path.join(out, 'directory', 'index.json'), 'utf8')) as DirectoryIndex;
     directory = new Set(d.shows.map((s) => s[0]));
+    explicitDirectory = new Set(d.shows.filter((s) => s[6] === 1).map((s) => s[0]));
   } catch { /* no directory yet: every chart show gets its own detail */ }
-  const charts = buildCharts(answers, featured, directory, new Date().toISOString());
+  const charts = buildCharts(answers, featured, directory, new Date().toISOString(), explicitDirectory);
   await writeFile(path.join(out, 'charts.json'), JSON.stringify(charts));
   console.log(`charts: ${charts.lists.length} lists, ${charts.lists.map((l) => l.items.length).join('/')} shows${failed.length ? `; failed: ${failed.join('; ')}` : ''}`);
 }

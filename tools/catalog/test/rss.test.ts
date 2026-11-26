@@ -96,3 +96,11 @@ test('hostile input stays fast', () => {
   plain('<script '.repeat(50_000));
   assert.ok(performance.now() - t0 < 5000, `${performance.now() - t0} ms`);
 });
+
+test('explicit flag is parsed from channel itunes:explicit', () => {
+  for (const val of ['yes', 'true', 'explicit', 'Yes'])
+    assert.equal(parseFeed(feed(item(), `<itunes:explicit>${val}</itunes:explicit>`)).explicit, true, val);
+  for (const val of ['no', 'false', 'clean', ''])
+    assert.equal(parseFeed(feed(item(), `<itunes:explicit>${val}</itunes:explicit>`)).explicit, false, val);
+  assert.equal(parseFeed(feed(item())).explicit, false);
+});

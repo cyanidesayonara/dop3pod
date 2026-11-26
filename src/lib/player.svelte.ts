@@ -30,22 +30,22 @@ class Player {
     audio.volume = saved.volume;
     const on = (e: string, f: () => void) => audio.addEventListener(e, f);
     on('loadedmetadata', () => {
-      audio.playbackRate = saved.rate;
-      if (this.#resumeAt > 0 && this.#resumeAt < (audio.duration || Infinity) - 5) audio.currentTime = this.#resumeAt;
-      this.#resumeAt = 0;
+      this.#syncRate();
+      this.#applyResume();
       this.#length();
+      this.#position();
     });
-    on('durationchange', () => this.#length());
+    on('durationchange', () => { this.#length(); this.#position(); });
     on('timeupdate', () => {
       if (this.#resumeAt > 0) return;
       this.time = audio.currentTime;
       if (Math.abs(Date.now() - this.#lastSave) > 5000) this.remember();
     });
     on('play', () => { this.playing = true; this.#session(); });
-    on('pause', () => { this.playing = false; this.remember(); this.#session(); });
+    on('pause', () => { this.playing = false; this.remember(); this.#session(); this.#position(); });
     on('waiting', () => (this.waiting = true));
-    on('playing', () => { this.waiting = false; this.error = ''; });
-    on('canplay', () => (this.waiting = false));
+    on('playing', () => { this.waiting = false; this.error = ''; this.#syncRate(); this.#position(); });
+    on('canplay', () => { this.waiting = false; this.#applyResume(); });
     on('ended', () => {
       this.remember(true);
       if (this.sleep === 'end') this.setSleep('');
@@ -115,7 +115,11 @@ class Player {
     if (!this.episode) return;
     const to = Math.max(0, Math.min(t, this.duration ? this.duration - 1 : t));
     this.time = to;
-    if (audio.readyState === 0) this.#resumeAt = to; else audio.currentTime = to;
+    if (audio.readyState === 0) this.#resumeAt = to;
+    else {
+      try { audio.currentTime = to; } catch { this.#resumeAt = to; }
+    }
+    this.#position();
   }
   skip(s: number) { this.seek(this.time + s); }
 
@@ -135,7 +139,7 @@ class Player {
     }, 1000);
   }
 
-  setRate(r: number) { saved.rate = r; audio.playbackRate = r; save(); }
+  setRate(r: number) { saved.rate = r; audio.playbackRate = r; this.#position(); save(); }
   setVolume(v: number) { saved.volume = v; audio.volume = v; save(); }
 
   remember(done = false) {
@@ -155,12 +159,38 @@ class Player {
     });
   }
 
+  #syncRate() {
+    if (audio.playbackRate !== saved.rate) audio.playbackRate = saved.rate;
+  }
+
+  #applyResume() {
+    if (this.#resumeAt <= 0) return;
+    if (this.#resumeAt >= (audio.duration || Infinity) - 5) { this.#resumeAt = 0; return; }
+    if (audio.seekable.length === 0) return;
+    try {
+      audio.currentTime = this.#resumeAt;
+      this.#resumeAt = 0;
+    } catch { /* wait for canplay */ }
+  }
+
   #length() {
     if (Number.isFinite(audio.duration) && audio.duration > 0) this.duration = audio.duration;
   }
 
   #session() {
     if (navigator.mediaSession) navigator.mediaSession.playbackState = this.playing ? 'playing' : 'paused';
+  }
+
+  #position() {
+    const ms = navigator.mediaSession;
+    if (!ms?.setPositionState || !Number.isFinite(this.duration) || this.duration <= 0 || !Number.isFinite(this.time)) return;
+    try {
+      ms.setPositionState({
+        duration: this.duration,
+        playbackRate: audio.playbackRate || saved.rate,
+        position: Math.min(Math.max(0, this.time), this.duration),
+      });
+    } catch { /* ignore unsupported or out-of-range states */ }
   }
 
   #metadata() {

@@ -29,6 +29,7 @@ h2 { font-size: 1.1rem; font-weight: 600; }
 a { color: var(--accent); }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
+button, a, input[type='range'], select { touch-action: manipulation; }
 button:disabled { opacity: 0.35; cursor: default; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 main:focus { outline: none; }
@@ -70,7 +71,14 @@ main { max-width: 72rem; margin: 0 auto; padding: 1rem; display: grid; gap: 1rem
 .list > h2, .bar-head { background: var(--teal); color: var(--on-teal); padding: 0.7rem 1rem; }
 .bar-head { display: flex; gap: 0.6rem 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .bar-head :focus-visible { outline-color: #000; }
-input[type='search'] { background: #fff; color: #111; border: 0; border-radius: 4px; padding: 0.55rem 0.75rem; width: 16rem; max-width: 100%; min-height: 2.75rem; }
+.bar-tools { display: flex; gap: 0.5rem; align-items: center; max-width: 100%; }
+.view-toggle { display: inline-flex; border: 2px solid #000; border-radius: 4px; overflow: hidden; flex: none; }
+.view-toggle .icon-btn { min-width: 2.75rem; min-height: 2.75rem; border-radius: 0; }
+.view-toggle .icon-btn + .icon-btn { border-left: 2px solid #000; }
+.view-toggle .icon-btn:hover:not([aria-pressed='true']) { background: #0000001f; }
+.view-toggle .icon-btn[aria-pressed='true'] { background: #000; color: var(--teal); }
+.browse-list > li + li { border-top: 1px solid var(--hair); }
+input[type='search'] { appearance: none; background: #fff; color: #111; border: 0; border-radius: 4px; padding: 0.55rem 0.75rem; width: 16rem; max-width: 100%; min-height: 2.75rem; }
 input[type='search']::placeholder { color: #666; opacity: 1; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.8rem 1rem; border-bottom: 1px solid var(--hair); }
 .chip, .btn { background: none; border: 2px solid var(--line); border-radius: 4px; padding: 0.35rem 0.8rem; min-height: 2.75rem; font-weight: 500; display: inline-flex; align-items: center; color: var(--ink); text-decoration: none; }
@@ -127,7 +135,7 @@ input[type='search']::placeholder { color: #666; opacity: 1; }
 footer { max-width: 72rem; margin: 0 auto; padding: 1rem 1rem 2rem; color: var(--soft); font-size: 0.875rem; }
 footer.with-player { padding-bottom: calc(9rem + env(safe-area-inset-bottom)); }
 .player { position: fixed; inset: auto 0 0; z-index: 10; background: var(--bar); border-top: 2px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
-.player-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 1rem; padding: 0.3rem max(1rem, calc((100vw - 70rem) / 2)) 0.6rem; }
+.player-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 1rem; padding: 0.1rem max(1rem, calc((100vw - 70rem) / 2)) 0.6rem; }
 .player-error { display: flex; flex-wrap: wrap; gap: 0 0.8rem; align-items: center; padding: 0.2rem max(1rem, calc((100vw - 70rem) / 2)); }
 .now-playing { display: flex; gap: 0.8rem; align-items: center; color: inherit; text-decoration: none; min-width: 0; }
 .now-playing strong, .now-playing .meta { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.35; }
@@ -140,8 +148,9 @@ input[type='range']::-webkit-slider-runnable-track { height: 6px; background: va
 input[type='range']::-moz-range-track { height: 6px; background: var(--track); border-radius: 3px; }
 input[type='range']::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; margin-top: -5px; border-radius: 50%; border: 0; background: var(--accent); }
 input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; border: 0; background: var(--accent); }
-.seek { display: block; width: 100%; }
+.seek { display: block; width: 100%; height: 2.25rem; }
 .volume { flex: 0 1 6rem; min-width: 3rem; }
+@media (hover: none) and (pointer: coarse) { .volume { display: none; } }
 
 /* not enough room for three columns: controls get a centred row of their own */
 @media (max-width: 72rem) {
@@ -164,6 +173,8 @@ input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius
   .circle { width: 7.5rem; height: 7.5rem; }
   .tiles span { width: 1.9rem; height: 1.9rem; font-size: 1rem; }
   .bar-head input { width: 100%; }
+  .bar-tools { width: 100%; }
+  .bar-tools input { flex: 1; min-width: 0; width: auto; }
   .show-head { flex-direction: column; gap: 1rem; padding: 1rem; }
   .episode { gap: 0.8rem; flex-wrap: wrap; }
   .episode .grow { flex-basis: calc(100% - 4rem); }

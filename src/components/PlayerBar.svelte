@@ -6,6 +6,7 @@
 
   const RATES = [0.75, 1, 1.25, 1.5, 1.75, 2];
   let drag = $state<number | null>(null);
+  $effect(() => { void player.episode; drag = null; });
   const shown = $derived(drag ?? player.time);
   const pct = $derived(player.duration ? Math.min(100, (shown / player.duration) * 100) : 0);
 </script>
@@ -24,12 +25,13 @@
       aria-label="Seek" aria-valuetext="{clock(shown)} of {clock(player.duration)}"
       oninput={(e) => (drag = e.currentTarget.valueAsNumber)}
       onchange={(e) => { player.seek(e.currentTarget.valueAsNumber); drag = null; }}
+      onpointercancel={() => (drag = null)}
     />
     <div class="player-row">
       <a class="now-playing" href="#/show/{player.show.id}/{player.episode.id}">
         <Cover title={player.show.title} src={artwork(player.show)} size={48} />
         <span class="grow">
-          <strong>{player.episode.title}</strong>
+          <strong lang={player.show.language || undefined}>{player.episode.title}</strong>
           <span class="meta">{player.waiting && !player.error ? 'Loading…' : player.show.title}</span>
         </span>
       </a>
@@ -58,7 +60,7 @@
         <select aria-label="Speed" value={saved.rate} onchange={(e) => player.setRate(Number(e.currentTarget.value))}>
           {#each RATES as r (r)}<option value={r}>{r}×</option>{/each}
         </select>
-        <input class="volume" type="range" min="0" max="1" step="0.05" value={saved.volume} style:--p="{saved.volume * 100}%" aria-label="Volume" oninput={(e) => player.setVolume(e.currentTarget.valueAsNumber)} />
+        <input class="volume" type="range" min="0" max="1" step="0.05" value={saved.volume} style:--p="{saved.volume * 100}%" aria-label="Volume" aria-valuetext="{Math.round(saved.volume * 100)}%" oninput={(e) => player.setVolume(e.currentTarget.valueAsNumber)} />
       </div>
     </div>
   </section>

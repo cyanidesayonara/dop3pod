@@ -56,7 +56,7 @@
             <span class="grow">
               <strong lang={item.language || undefined}>{item.title}</strong>
               {#if item.author && item.author !== item.title}<span class="meta">by {item.author}</span>{/if}
-              {#if item.language}<span class="meta">{languageName(item.language)}</span>{/if}
+              {#if item.language || item.explicit}<span class="meta">{languageName(item.language)}{#if item.language && item.explicit} · {/if}{#if item.explicit}<span class="badge" aria-hidden="true">E</span><span class="sr">Explicit</span>{/if}</span>{/if}
             </span>
           </a>
         </li>

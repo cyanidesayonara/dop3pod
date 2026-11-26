@@ -10,7 +10,7 @@ export type RawEpisode = {
   audio: string;
   bytes: number | null;
 };
-export type Feed = { title: string; author: string; description: string; link: string; image: string; episodes: RawEpisode[] };
+export type Feed = { title: string; author: string; description: string; link: string; image: string; explicit: boolean; episodes: RawEpisode[] };
 
 const ITUNES = 'http://www.itunes.com/dtds/podcast-1.0.dtd';
 const NAMED: Record<string, string> = {
@@ -187,6 +187,7 @@ export function parseFeed(x: string): Feed {
     description: text(channel, ['description', 'itunes:summary', 'itunes:subtitle']),
     link: httpsUrl(decode(channel.link ?? '')),
     image: channel['itunes:image'] ?? httpsUrl(decode(channel.image ?? '')),
+    explicit: /^(yes|true|explicit)$/i.test(channel['itunes:explicit'] ?? ''),
     episodes,
   };
 }

@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { DirectoryIndex } from '../../tools/catalog/types.ts';
   import { loadDirectory } from '../lib/directory.ts';
+  import type { BrowseView } from '../lib/saved.svelte.ts';
   import Cover from './Cover.svelte';
 
-  let { query, category, language }: { query: string; category: string; language: string } = $props();
+  let { query, category, language, view = 'grid' }: { query: string; category: string; language: string; view?: BrowseView } = $props();
   let index = $state.raw<DirectoryIndex | null>(null);
   let failed = $state(false);
   let limit = $state(30);
@@ -42,15 +43,15 @@
       <p class="notice" role="status">Searching {category === 'All' ? '' : `${category} `}podcasts…</p>
     {:else if results.length}
       <p class="meta count" role="status">{results.length} {results.length === 1 ? 'match' : 'matches'} among {index.shows.length.toLocaleString('en')} popular shows</p>
-      <ul class="grid">
+      <ul class={view === 'list' ? 'striped browse-list' : 'grid'}>
         {#each results.slice(0, limit) as s (s[0])}
           <li>
             <a class="card" href="#/show/d-{s[0]}">
-              <Cover title={s[1]} src={s[5]} size={72} />
+              <Cover title={s[1]} src={s[5]} size={view === 'list' ? 56 : 72} />
               <span class="grow">
                 <strong lang={index.languages[s[3]] || undefined}>{s[1]}</strong>
                 {#if s[2] && s[2] !== s[1]}<span class="meta">by {s[2]}</span>{/if}
-                <span class="meta">{[index.categories[s[4]], languageName(index.languages[s[3]])].filter(Boolean).join(' · ')}{#if s[6]} · <span class="badge">E</span><span class="sr">xplicit</span>{/if}</span>
+                <span class="meta">{[index.categories[s[4]], languageName(index.languages[s[3]])].filter(Boolean).join(' · ')}{#if s[6]} · <span class="badge" aria-hidden="true">E</span><span class="sr">Explicit</span>{/if}</span>
               </span>
             </a>
           </li>
