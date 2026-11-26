@@ -98,6 +98,8 @@ input[type='search']::placeholder { color: #666; opacity: 1; }
 .btn.on-teal { border-color: #000; color: #000; }
 .btn.on-teal:hover { background: #0000001f; }
 .list > .bar-head h1 { font-size: 1.1rem; font-weight: 600; }
+.badge { display: inline-block; font-size: 0.75rem; font-weight: 700; line-height: 1; padding: 0.2rem 0.35rem; border-radius: 3px; background: var(--soft); color: var(--panel); vertical-align: 0.1em; }
+.count { padding: 0.6rem 1rem; border-bottom: 1px solid var(--hair); }
 .bar { display: block; height: 4px; background: var(--hair); margin-top: 0.35rem; border-radius: 2px; overflow: hidden; }
 .bar span { display: block; height: 100%; background: var(--teal); }
 .cover { position: relative; flex: none; display: grid; place-items: center; background: var(--teal); color: #000; font: 600 1.5rem/1 Orbitron, sans-serif; border-radius: 4px; overflow: hidden; }

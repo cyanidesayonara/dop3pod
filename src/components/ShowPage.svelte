@@ -71,11 +71,13 @@
     <div class="grow">
       <h1 lang={s.language}>{s.title}</h1>
       {#if s.author && s.author !== s.title}<p class="meta">by {s.author}</p>{/if}
+      {#if s.explicit}<p class="meta"><span class="badge">Explicit</span></p>{/if}
       <p lang={s.language}>{s.description}</p>
       <p class="actions">
-        <button class="btn" aria-pressed={favorite} onclick={() => toggleFavorite(id)}>{favorite ? '★ Favorite' : '☆ Add to favorites'}</button>
+        {#if !id.startsWith('d-')}<button class="btn" aria-pressed={favorite} onclick={() => toggleFavorite(id)}>{favorite ? '★ Favorite' : '☆ Add to favorites'}</button>{/if}
         {#if s.link}<a class="btn ghost" href={s.link} target="_blank" rel="noopener noreferrer">Show website</a>{/if}
       </p>
+      {#if s.limited}<p class="meta">This publisher doesn't let browsers read its feed, so only the latest episode is here. The show's website has the rest.</p>{/if}
       {#if s.stale}<p class="meta">The latest update failed, so newer episodes may be missing.</p>{/if}
     </div>
   </section>

@@ -12,6 +12,9 @@ Everything it remembers stays in your browser.
 - **A daily catalog.** Browsers may not read many podcast feeds directly, so a scheduled GitHub Action reads the
   feeds in [`catalog/shows.json`](catalog/shows.json) and publishes small JSON files and cover thumbnails.
   A show that fails keeps its last good episodes.
+- **A searchable directory.** Once a month the same Action builds an index of about 27,000 popular, active shows from
+  [Podcast Index](https://podcastindex.org)'s public data dump. Opening one reads its feed in the browser when the
+  publisher allows it; otherwise its latest episode still plays.
 - **Audio comes straight from the publishers.** No audio is copied or re-hosted.
 - **Feeds are untrusted.** [`tools/catalog/rss.ts`](tools/catalog/rss.ts) tolerates broken XML, expands no custom
   entities, accepts only https audio, and reduces every description to plain text.

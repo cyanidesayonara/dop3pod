@@ -5,6 +5,7 @@
   import { removeFromQueue } from '../lib/queue.ts';
   import Cover from './Cover.svelte';
   import Dial from './Dial.svelte';
+  import DirectoryResults from './DirectoryResults.svelte';
 
   let shows = $state.raw<ShowCard[]>([]);
   let failed = $state(false);
@@ -157,7 +158,7 @@
   <section class="panel list" aria-labelledby="browse">
     <div class="bar-head">
       <h2 id="browse">{current === 'All' ? 'All podcasts' : current}</h2>
-      <input type="search" placeholder="Filter podcasts" aria-label="Filter podcasts" bind:value={query} />
+      <input type="search" placeholder="Search podcasts" aria-label="Search podcasts" bind:value={query} />
     </div>
     <div class="chips" role="group" aria-label="Choose a category">
       {#each dial as c (c)}
@@ -180,7 +181,8 @@
         {/each}
       </ul>
     {:else}
-      <p class="notice" role="status">{query.trim() ? `No podcasts match “${query}”.` : 'No podcasts here yet. Try another category or language.'}</p>
+      <p class="notice" role="status">{query.trim() ? `None of the featured podcasts match “${query}”.` : 'No podcasts here yet. Try another category or language.'}</p>
     {/if}
   </section>
+  <DirectoryResults {query} category={current === 'Favorites' ? 'All' : current} {language} />
 {/if}
