@@ -42,13 +42,15 @@ jobs:
         run: |
           set -euo pipefail
           prev=https://cyanidesayonara.github.io/dop3pod/data
-          if [ "$REBUILD" != true ] && curl -sfI "$prev/directory/index.json" >/dev/null; then
-            node tools/catalog/directory.ts --prev "$prev"
-          else
-            curl -sSfL -A "dopepod-catalog/1.0 (+https://github.com/cyanidesayonara/dop3pod)"               https://public.podcastindex.org/podcastindex_feeds.db.tgz | tar -xzf - -C "$RUNNER_TEMP"
+          rebuild() {
+            curl -sSfL --retry 3 -A "dopepod-catalog/1.0 (+https://github.com/cyanidesayonara/dop3pod)" https://public.podcastindex.org/podcastindex_feeds.db.tgz | tar -xzf - -C "$RUNNER_TEMP"
             node tools/catalog/directory.ts --db "$RUNNER_TEMP/podcastindex_feeds.db"
             rm "$RUNNER_TEMP/podcastindex_feeds.db"
-          fi
+          }
+          # copy yesterday's directory; if that fails, rebuild it from the dump
+          if [ "$REBUILD" = true ] || ! node tools/catalog/directory.ts --prev "$prev"; then rebuild; fi
+          # never publish a site without it: a failed build leaves the last good site up
+          test -s public/data/directory/index.json && test -s public/data/directory/255.json
       - name: Charts
         env:
           PODCASTINDEX_KEY: ${{ secrets.PODCASTINDEX_KEY }}
