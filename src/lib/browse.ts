@@ -168,3 +168,33 @@ export function filterBrowse(pool: BrowseShow[], language: string, query: string
     .sort((a, b) => a.rank - b.rank || Number(b.s.featured) - Number(a.s.featured) || b.s.latestTs - a.s.latestTs)
     .map((x) => x.s);
 }
+
+export type ResumeProgress = { t: number; d: number; at: number; show: string; title: string; done: boolean };
+export type ResumeItem = { id: string; p: ResumeProgress; show: Pick<BrowseShow, 'id' | 'title' | 'image' | 'cover' | 'language'> };
+
+export function buildResumeList(
+  progress: Record<string, ResumeProgress>,
+  allShows: BrowseShow[],
+  favoriteMeta: Record<string, FavoriteMeta>,
+  currentEpisodeId?: string,
+): ResumeItem[] {
+  const byId = new Map(allShows.map((s) => [s.id, s]));
+  const items: ResumeItem[] = [];
+  for (const [id, p] of Object.entries(progress)) {
+    if (p.done || id === currentEpisodeId) continue;
+    const found = byId.get(p.show);
+    if (found) {
+      items.push({ id, p, show: found });
+      continue;
+    }
+    const m = p.show.startsWith('d-') ? favoriteMeta[p.show] : undefined;
+    if (m) {
+      items.push({
+        id,
+        p,
+        show: { id: p.show, title: m.title, image: m.image, cover: '', language: normalizeLang(m.language) },
+      });
+    }
+  }
+  return items.sort((a, b) => b.p.at - a.p.at).slice(0, 4);
+}

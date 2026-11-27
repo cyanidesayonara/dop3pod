@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildBrowseList, buildCategories, buildFavoriteShows, buildLanguages, filterBrowse, languageLabel } from '../../../src/lib/browse.ts';
+import { buildBrowseList, buildCategories, buildFavoriteShows, buildLanguages, buildResumeList, filterBrowse, languageLabel } from '../../../src/lib/browse.ts';
 import type { ShowCard } from '../../../src/lib/data.ts';
 import type { DirectoryIndex } from '../types.ts';
 
@@ -96,4 +96,26 @@ test('filterBrowse ranks exact, prefix, title, author, description matches with 
   ], dirIndex);
   assert.deepEqual(filterBrowse(exactAndAuthor, 'all', 'jane').map((s) => s.id), ['exact', 'prefix', 'title-inc', 'd-101', 'desc']);
   assert.deepEqual(filterBrowse(all, 'id', '').map((s) => s.id), ['d-102']);
+});
+
+test('buildResumeList includes featured, directory, and saved fallback shows, skips done/current, sorts and caps at 4', () => {
+  const all = buildBrowseList([card()], dirIndex);
+  const progress = {
+    ep1: { t: 10, d: 100, at: 100, show: 'feat', title: 'Featured Ep', done: false },
+    ep2: { t: 20, d: 200, at: 500, show: 'd-101', title: 'Dir Ep', done: false },
+    ep3: { t: 30, d: 300, at: 300, show: 'd-999', title: 'Chart Fav Ep', done: false },
+    ep4: { t: 40, d: 400, at: 200, show: 'd-102', title: 'Indo Ep', done: false },
+    ep5: { t: 50, d: 500, at: 400, show: 'd-103', title: 'Crime Ep', done: false },
+    epDone: { t: 100, d: 100, at: 900, show: 'feat', title: 'Done Ep', done: true },
+    epNow: { t: 15, d: 150, at: 800, show: 'feat', title: 'Playing Ep', done: false },
+    epMissing: { t: 5, d: 50, at: 700, show: 'd-404', title: 'No Meta Ep', done: false },
+  };
+  const favoriteMeta = {
+    'd-999': { title: 'Chart Only', author: 'Host', image: 'https://c.example/999.jpg', language: 'in', category: 'Music' },
+  };
+  const resume = buildResumeList(progress, all, favoriteMeta, 'epNow');
+  assert.deepEqual(resume.map((r) => r.id), ['ep2', 'ep5', 'ep3', 'ep4']);
+  assert.equal(resume[0].show.title, 'Tech Talk');
+  assert.equal(resume[2].show.title, 'Chart Only');
+  assert.equal(resume[2].show.language, 'id');
 });

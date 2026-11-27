@@ -79,7 +79,7 @@ main { max-width: 72rem; margin: 0 auto; padding: 1rem; display: grid; gap: 1rem
 .view-toggle .icon-btn:focus-visible, .bar-head input[type='search']:focus-visible { outline: 2px solid #454545; outline-offset: -2px; }
 .browse-list > li + li { border-top: 1px solid var(--hair); }
 .browse-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; flex-wrap: wrap; padding: 0.5rem 1rem; border-bottom: 1px solid var(--hair); }
-.lang-picker select { min-height: 2.5rem; padding: 0 0.5rem; max-width: 100%; }
+.lang-picker select { height: 2.5rem; padding: 0 0.5rem; max-width: 100%; }
 input[type='search'] { appearance: none; background: #fff; color: #2e2e2e; border: 0; border-radius: 4px; padding: 0 0.75rem; width: 16rem; max-width: 100%; height: 2.75rem; }
 input[type='search']::placeholder { color: #666; opacity: 1; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.8rem 1rem; border-bottom: 1px solid var(--hair); }
@@ -144,7 +144,7 @@ footer.with-player { padding-bottom: calc(9rem + env(safe-area-inset-bottom)); }
 .controls { display: flex; align-items: center; gap: 0.3rem; }
 .extras { display: flex; align-items: center; justify-content: flex-end; gap: 0.8rem; min-width: 0; }
 .time { font-size: 0.875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
-select { background: var(--panel); border: 2px solid var(--line); border-radius: 4px; min-height: 2.4rem; padding: 0 0.3rem; }
+select { background: var(--panel); border: 2px solid var(--line); border-radius: 4px; height: 2.4rem; padding: 0 0.3rem; }
 input[type='range'] { appearance: none; background: none; margin: 0; height: 1.5rem; cursor: pointer; --track: linear-gradient(to right, var(--teal) var(--p), var(--hair) var(--p)); }
 input[type='range']::-webkit-slider-runnable-track { height: 6px; background: var(--track); border-radius: 3px; }
 input[type='range']::-moz-range-track { height: 6px; background: var(--track); border-radius: 3px; }
@@ -172,7 +172,9 @@ input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius
   .dial { grid-template-columns: auto auto auto; align-items: center; justify-content: center; gap: 1rem; }
   .dial .square:first-child { transform: rotate(-90deg); }
   .dial .square:last-child { transform: rotate(-90deg); }
-  .circle { width: 7.5rem; height: 7.5rem; }
+  .circle { width: 8.75rem; height: 8.75rem; padding: 0 0.5rem; }
+  .circle strong { font-size: 1rem; padding: 0 0.3rem; }
+  .circle span { font-size: 0.8rem; }
   .tiles span { width: 1.9rem; height: 1.9rem; font-size: 1rem; }
   .bar-head input { width: 100%; }
   .bar-tools { width: 100%; }

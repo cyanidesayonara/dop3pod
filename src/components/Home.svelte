@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DirectoryIndex } from '../../tools/catalog/types.ts';
-  import { buildBrowseList, buildCategories, buildFavoriteShows, buildLanguages, filterBrowse, languageLabel } from '../lib/browse.ts';
+  import { buildBrowseList, buildCategories, buildFavoriteShows, buildLanguages, buildResumeList, filterBrowse, languageLabel } from '../lib/browse.ts';
   import { artwork, clock, day, loadCatalog, loadShow, minutes, type Episode, type Show, type ShowCard } from '../lib/data.ts';
   import { loadDirectory } from '../lib/directory.ts';
   import { player } from '../lib/player.svelte.ts';
@@ -66,13 +66,7 @@
     shown = 30;
   });
 
-  const resume = $derived(
-    Object.entries(saved.progress)
-      .filter(([id, p]) => !p.done && !player.isCurrent(id) && shows.some((s) => s.id === p.show))
-      .sort((a, b) => b[1].at - a[1].at)
-      .slice(0, 4)
-      .map(([id, p]) => ({ id, p, show: shows.find((s) => s.id === p.show)! })),
-  );
+  const resume = $derived(buildResumeList(saved.progress, allShows, saved.favoriteShows, player.episode?.id));
 
   // The newest unplayed episodes of favorite shows, from the last 30 days.
   let news = $state.raw<{ show: Show; e: Episode }[]>([]);
@@ -138,7 +132,7 @@
             <button class="resume" onclick={() => go(r.show.id, r.id)}>
               <Cover title={r.show.title} src={artwork(r.show)} size={56} />
               <span class="grow">
-                <strong>{r.p.title}</strong>
+                <strong lang={r.show.language || undefined}>{r.p.title}</strong>
                 <span class="meta">{r.show.title} · {clock(r.p.t)}{r.p.d ? ` of ${clock(r.p.d)}` : ''}</span>
                 {#if r.p.d}<span class="bar"><span style:width="{Math.min(100, (r.p.t / r.p.d) * 100)}%"></span></span>{/if}
               </span>
