@@ -91,3 +91,13 @@ jobs:
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
         with:
           artifact_name: github-pages-${{ github.run_attempt }}
+      # Push-to-master only: daily catalog cron must not spam portfolio sync PRs.
+      - name: Notify portfolio-site
+        if: success() && github.event_name == 'push'
+        continue-on-error: true
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PORTFOLIO_SYNC_TOKEN }}
+          repository: cyanidesayonara/portfolio-site
+          event-type: project-updated
+          client-payload: '{"project": "dop3pod", "ref": "${{ github.sha }}"}'
